@@ -23,12 +23,11 @@ const apiCall = async (path, method, data = {}, token ="") => {
   try {
     const response = await fetch(`${baseURL}${path}`, options);
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
     const data = await response.json();
 
+    if (!response.ok) {
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+    }
     return data;
 
   } catch (error) {

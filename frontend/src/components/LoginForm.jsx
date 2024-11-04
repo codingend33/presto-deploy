@@ -25,7 +25,7 @@ const LoginForm = () => {
       }
     } catch (error) {
       setError('Login failed');
-      console.error('Login error:', error); 
+      console.error('Login error:', error.message); 
     }
   };
 
