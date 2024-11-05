@@ -18,6 +18,7 @@ const LoginForm = () => {
       const { token } = response; 
       if (token) {
         localStorage.setItem('token', token); 
+        localStorage.setItem("email", email); 
         console.log('User logged in:', response);
         navigate('/dashboard'); 
       } else {
