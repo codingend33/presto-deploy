@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Dashboard from "./components/DashBoard";
 import EditPresentation from './components/EditPresentation';
 import Logout from "./pages/Logout";
+import NotFound from "./pages/404";
 
 const router = createBrowserRouter([
   { path: "/", element: <Home /> },
@@ -14,6 +15,8 @@ const router = createBrowserRouter([
   { path: "/logout", element: <Logout /> },
   { path: '/dashboard', element: <Dashboard /> }, 
   { path: "/presentations/:id", element: <EditPresentation /> },
+  {path:'*', element: <NotFound />}
+
 ]);
 
 export default router;
