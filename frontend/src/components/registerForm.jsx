@@ -34,6 +34,7 @@ const RegisterForm = () => {
   };
 
   return (
+    // // pressing enter key to register
     <form onSubmit={handleRegister}>
         <Box
         sx={{ '& > :not(style)': { m: 1, width: '25ch' } }}

@@ -21,9 +21,14 @@ const Dashboard = () => {
       try {
         const response = await apiCall('/store', 'GET', {}, token);
         console.log("Response:", response);
-  
         if (response && response.store) {
-          setPresentations(response.store);
+          const updatedPresentations = Object.keys(response.store).reduce((acc, key) => {
+            const pres = response.store[key];
+            const thumbnail = pres.thumbnail || (pres.slides && pres.slides.length > 0 ? pres.slides[0].content : '');
+            acc[key] = { ...pres, thumbnail };
+            return acc;
+          }, {});
+          setPresentations(updatedPresentations);
         } else {
           console.warn('No store available');
           setPresentations({}); 

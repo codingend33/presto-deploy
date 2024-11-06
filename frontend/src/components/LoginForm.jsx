@@ -31,7 +31,8 @@ const LoginForm = () => {
   };
 
   return (
-    <form onSubmit={handleLogin}>
+    // pressing enter key to login
+    <form onSubmit={handleLogin}> 
         <Box
         sx={{ '& > :not(style)': { m: 1, width: '25ch' } }}
         noValidate
