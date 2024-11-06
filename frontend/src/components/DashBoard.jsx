@@ -7,6 +7,7 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import PresentationCard from '../components/PresentationCard';
 
+
 const Dashboard = () => {
   const [presentations, setPresentations] = useState({});
   const [displayModal, setDisplayModal] = useState(false); 
@@ -68,11 +69,11 @@ const Dashboard = () => {
   };
   
   return (
-    <div>
+    <Box sx={{ padding: '20px' }}>
       <h1>Dashboard</h1>
+      <Button onClick={() => navigate('/logout')}>Logout</Button>
       <Button variant="contained" onClick={modalOpen} sx={{ textTransform: 'none' }}>New Presentation</Button>
-      {/* presentations card */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '20px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', marginTop: '20px'}}>
         {presentations && Object.keys(presentations).map((key) => (
           <PresentationCard key={key} presentation={presentations[key]} presentationId={key} />
         ))}
@@ -94,7 +95,7 @@ const Dashboard = () => {
           </div>
         </Box>
       </Modal>
-    </div>
+    </Box>
   );
 };
 
