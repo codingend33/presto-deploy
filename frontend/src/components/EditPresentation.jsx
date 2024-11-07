@@ -17,9 +17,9 @@ const EditPresentation = () => {
   const [deletePopup, setDeletePopup] = useState(false);
   const [showTitleEditModal, setShowTitleEditModal] = useState(false);
 
-  const [elements, setElements] = useState([]);
-  const [elementModalDisplay, setElementModalDisplay] = useState(false);
-  const [handlingElement, setHandlingElement] = useState(null);
+  const [elements, setElements] = useState([]); // store all elements of one slide
+  const [elementModalDisplay, setElementModalDisplay] = useState(false); // manage element modal
+  const [handlingElement, setHandlingElement] = useState(null); // manage currently editing element
 
   const token = localStorage.getItem("token");
 
@@ -50,18 +50,72 @@ const EditPresentation = () => {
     getPresentation();
   }, [presentationId, token, currentSlideIndex]);
 
-  // open new element modal
+  // open element modal
   const openNewElementModal = (type) => {
-    setHandlingElement({ type, x: 0, y: 0, width: 50, height: 50 });
+    setHandlingElement({ type, x: 0, y: 0, width: 50, height: 50 }); //initial element setting
     setElementModalDisplay(true);
   };
 
-  // handle elements change
+  // handle element change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setEditingElement({ ...editingElement, [name]: value });
+    setHandlingElement({ ...handlingElement, [name]: value }); // store currently edited element
   };
 
+  // save new and updated element
+  const saveElement = () => {
+    // if current element is exist, find it in elements list and update it. else:add new element into list.
+    const updatedElements = handlingElement.id
+      ? elements.map((element) =>
+          element.id === handlingElement.id ? handlingElement : element
+        )
+      : [...elements, { ...handlingElement, id: `element_${Date.now()}` }];
+
+    console.log("updatedElements", updatedElements);
+
+    setElements(updatedElements); // update elements in slide
+
+    updateDatabase(updatedElements); // update database
+    setElementModalDisplay(false);
+  };
+
+  // delete element
+  const deleteElement = async (elementId) => {
+    const updatedElements = elements.filter(
+      (element) => element.id !== elementId
+    );
+
+    setElements(updatedElements); // update elements in slide
+    updateDatabase(updatedElements); // update database
+  };
+
+  // update database
+  const updateDatabase = async (newElements) => {
+    const updatedPresentation = {
+      ...presentation,
+      slides: presentation.slides.map((slide, index) =>
+        index === currentSlideIndex
+          ? { ...slide, elements: newElements }
+          : slide
+      ),
+    };
+
+    setPresentation(updatedPresentation); // update elements in presentation
+
+    try {
+      const response = await apiCall("/store", "GET", {}, token);
+      const updatedStore = {
+        ...response.store,
+        [presentationId]: updatedPresentation,
+      };
+      await apiCall("/store", "PUT", { store: updatedStore }, token);
+      setPresentation(updatedPresentation);
+    } catch (error) {
+      console.error("Failed to save presentation to database:", error.message);
+    }
+  };
+
+  // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // Delete Presentation
   const deletePresentation = async () => {
     try {
@@ -220,6 +274,35 @@ const EditPresentation = () => {
       >
         <Box sx={{ ...modalStyle }}>
           <h2>Edit {handlingElement?.type} Properties</h2>
+
+          {/* different type*/}
+          {handlingElement?.type === "text" && (
+            <>
+              <TextField
+                label="Text"
+                name="text"
+                value={handlingElement.text || ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Font Size (em)"
+                name="fontSize"
+                value={handlingElement.fontSize || ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Color (HEX)"
+                name="color"
+                value={handlingElement.color || ""}
+                onChange={handleChange}
+                fullWidth
+              />
+            </>
+          )}
+
+          {/* x and y */}
           <TextField
             label="X Position (%)"
             name="x"
@@ -234,12 +317,61 @@ const EditPresentation = () => {
             onChange={handleChange}
             fullWidth
           />
+          {/* save button */}
+          <Button onClick={saveElement} variant="contained" sx={{ mt: 2 }}>
+            Save
+          </Button>
         </Box>
       </Modal>
 
+      {/* render element  */}
       <Box sx={{ ...slideBox }}>
+        {elements.map((element) => (
+          <Box
+            key={element.id}
+            sx={{
+              position: "absolute",
+              left: `${element.x}%`,
+              top: `${element.y}%`,
+              width: `${element.width}%`,
+              height: `${element.height}%`,
+              border: "1px solid grey",
+              padding: "5px",
+              margin: "5px",
+            }}
+            // double click edit element
+            onDoubleClick={() => {
+              setHandlingElement(element);
+              setElementModalDisplay(true);
+            }}
+            // right click delete element
+            onContextMenu={(e) => {
+              e.preventDefault();
+              deleteElement(element.id);
+            }}
+          >
+            {/* render different element */}
+
+            {element.type === "text" && (
+              <div
+                style={{
+                  fontSize: `${element.fontSize}em`,
+                  color: element.color,
+                  overflow: "hidden",
+                  whiteSpace: "normal",
+                  maxHeight: "100%",
+                }}
+              >
+                {element.text}
+              </div>
+            )}
+          </Box>
+        ))}
+
         <Box sx={{ ...slideNumberBox }}>{currentSlideIndex + 1}</Box>
       </Box>
+
+      {/* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */}
 
       <Box sx={{ display: "flex", alignItems: "center", marginTop: "20px" }}>
         <IconButton
