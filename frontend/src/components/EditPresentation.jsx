@@ -52,14 +52,24 @@ const EditPresentation = () => {
 
   // open element modal
   const openNewElementModal = (type) => {
-    setHandlingElement({ type, x: 0, y: 0, width: 50, height: 50 }); //initial element setting
+    setHandlingElement({
+      type,
+      x: 0,
+      y: 0,
+      width: 50,
+      height: 50,
+      autoPlay: false,
+    }); //initial element setting
     setElementModalDisplay(true);
   };
 
   // handle element change
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setHandlingElement({ ...handlingElement, [name]: value }); // store currently edited element
+    const { name, value, type, checked } = e.target;
+    setHandlingElement({
+      ...handlingElement,
+      [name]: type === "checkbox" ? checked : value,
+    }); // store currently edited element
   };
 
   // save new and updated element
@@ -275,7 +285,24 @@ const EditPresentation = () => {
         <Box sx={{ ...modalStyle }}>
           <h2>Edit {handlingElement?.type} Properties</h2>
 
+          {/* x and y */}
+          <TextField
+            label="X Position (%)"
+            name="x"
+            value={handlingElement?.x || ""}
+            onChange={handleChange}
+            fullWidth
+          />
+          <TextField
+            label="Y Position (%)"
+            name="y"
+            value={handlingElement?.y || ""}
+            onChange={handleChange}
+            fullWidth
+          />
           {/* different type*/}
+
+          {/* text */}
           {handlingElement?.type === "text" && (
             <>
               <TextField
@@ -299,28 +326,98 @@ const EditPresentation = () => {
                 onChange={handleChange}
                 fullWidth
               />
+              <TextField
+                label="Width (%)"
+                name="width"
+                value={handlingElement.width || ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Height (%)"
+                name="height"
+                value={handlingElement.height || ""}
+                onChange={handleChange}
+                fullWidth
+              />
             </>
           )}
 
-          {/* x and y */}
-          <TextField
-            label="X Position (%)"
-            name="x"
-            value={handlingElement?.x || ""}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            label="Y Position (%)"
-            name="y"
-            value={handlingElement?.y || ""}
-            onChange={handleChange}
-            fullWidth
-          />
+          {/* image */}
+          {handlingElement?.type === "image" && (
+            <>
+              <TextField
+                label="Image URL"
+                name="url"
+                value={handlingElement.url || ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Alt Text"
+                name="alt"
+                value={handlingElement.alt || ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Width (%)"
+                name="width"
+                value={handlingElement.width || ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Height (%)"
+                name="height"
+                value={handlingElement.height || ""}
+                onChange={handleChange}
+                fullWidth
+              />
+            </>
+          )}
+
+          {handlingElement?.type === "video" && (
+            <>
+              <TextField
+                label="Video URL"
+                name="url"
+                value={handlingElement.url || ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Width (%)"
+                name="width"
+                value={handlingElement.width || ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Height (%)"
+                name="height"
+                value={handlingElement.height || ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <label>
+                <input
+                  type="checkbox"
+                  name="autoPlay"
+                  checked={handlingElement.autoPlay || false}
+                  onChange={handleChange}
+                />
+                AutoPlay
+              </label>
+            </>
+          )}
+
           {/* save button */}
-          <Button onClick={saveElement} variant="contained" sx={{ mt: 2 }}>
-            Save
-          </Button>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+            <Button onClick={saveElement} variant="contained">
+              Save
+            </Button>
+          </Box>
         </Box>
       </Modal>
 
@@ -352,6 +449,7 @@ const EditPresentation = () => {
           >
             {/* render different element */}
 
+            {/* text */}
             {element.type === "text" && (
               <div
                 style={{
@@ -364,6 +462,37 @@ const EditPresentation = () => {
               >
                 {element.text}
               </div>
+            )}
+
+            {/* image */}
+            {element.type === "image" && (
+              <img
+                src={element.url}
+                alt={element.alt}
+                style={{ width: "100%", height: "100%" }}
+              />
+            )}
+
+            {/* video */}
+            {element.type === "video" && (
+              <Box
+                onDoubleClick={() => {
+                  setHandlingElement(element);
+                  setElementModalDisplay(true);
+                }}
+              >
+                <iframe
+                  src={`${element.url}${element.autoPlay ? "?autoplay=1" : ""}`}
+                  title="YouTube video"
+                  width="100%"
+                  height="100%"
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen
+                  style={{
+                    pointerEvents: "none",
+                  }}
+                />
+              </Box>
             )}
           </Box>
         ))}
