@@ -90,11 +90,19 @@ const EditPresentation = () => {
 
   // Add New Slide
   const addNewSlide = async () => {
+
     const newSlide = { slide_id: `slide_${Date.now()}`, content: '', position: presentation.slides.length + 1 };
+
+    const updatedSlides = [...presentation.slides, newSlide].map((slide, index) => ({
+      ...slide,
+      position: index + 1, 
+    }));
+
     const updatedPresentation = {
       ...presentation,
-      slides: [...presentation.slides, newSlide],
+      slides: updatedSlides,
     };
+
     try {
       const response = await apiCall('/store', 'GET', {}, token);
       const updatedStore = { ...response.store, [presentationId]: updatedPresentation };
@@ -112,10 +120,16 @@ const EditPresentation = () => {
       alert('Cannot delete the only slide. Delete the presentation instead.');
       return;
     }
-    const updatedSlides = presentation.slides.filter((slide, index) => index !== currentSlideIndex);
+
+    const updatedSlides = presentation.slides.filter((slide, index) => index !== currentSlideIndex)
+    const sortedSlides =updatedSlides.map((slide, index) => ({
+      ...slide,
+      position: index + 1, 
+    }));
+
     const updatedPresentation = {
       ...presentation,
-      slides: updatedSlides,
+      slides: sortedSlides,
     };
 
     try {
