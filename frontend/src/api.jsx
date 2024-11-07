@@ -1,14 +1,14 @@
 // src/api.js
 
-const baseURL = 'http://localhost:5005';
+const baseURL = "http://localhost:5005";
 
-const apiCall = async (path, method, data = {}, token ="") => {
+const apiCall = async (path, method, data = {}, token = "") => {
   const headers = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   };
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   const options = {
@@ -26,12 +26,11 @@ const apiCall = async (path, method, data = {}, token ="") => {
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      throw new Error(data.error || `HTTP error! status: ${response.status}`);
     }
     return data;
-
   } catch (error) {
-    console.error('Fetch error:', error);
+    console.error("Fetch error:", error);
     throw error;
   }
 };

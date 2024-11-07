@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
-import { RouterProvider } from 'react-router-dom';
-import router from './routers';
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+import { RouterProvider } from "react-router-dom";
+import router from "./routers";
 
 function App() {
   // const [count, setCount] = useState(0);
 
   return (
-    <RouterProvider router={router}/>
+    <RouterProvider router={router} />
 
     // <>
     //   <div>
@@ -35,7 +35,7 @@ function App() {
     //     Click on the Vite and React logos to learn more
     //   </p>
     // </>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -4,7 +4,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./components/DashBoard";
-import EditPresentation from './components/EditPresentation';
+import EditPresentation from "./components/EditPresentation";
 import Logout from "./pages/Logout";
 import NotFound from "./pages/404";
 
@@ -13,10 +13,9 @@ const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
   { path: "/logout", element: <Logout /> },
-  { path: '/dashboard', element: <Dashboard /> }, 
+  { path: "/dashboard", element: <Dashboard /> },
   { path: "/presentations/:id", element: <EditPresentation /> },
-  {path:'*', element: <NotFound />}
-
+  { path: "*", element: <NotFound /> },
 ]);
 
 export default router;
