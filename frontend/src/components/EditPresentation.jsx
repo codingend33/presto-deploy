@@ -4,6 +4,8 @@ import apiCall from "../api";
 import { TextField, Button, Box, Modal, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import hljs from "highlight.js";
+import "highlight.js/styles/default.css";
 
 const EditPresentation = () => {
   const params = useParams();
@@ -74,18 +76,25 @@ const EditPresentation = () => {
 
   // save new and updated element
   const saveElement = () => {
-    // if current element is exist, find it in elements list and update it. else:add new element into list.
+    let updatedElement = { ...handlingElement };
+
+    if (updatedElement.type === "video") {
+      updatedElement.url = formatUrl(updatedElement.url);
+      console.log(updatedElement.url);
+    }
+    // if current element is exist, find it in elements list and update it.
+    // else:add new element into list.
     const updatedElements = handlingElement.id
       ? elements.map((element) =>
-          element.id === handlingElement.id ? handlingElement : element
+          element.id === updatedElement.id ? updatedElement : element
         )
-      : [...elements, { ...handlingElement, id: `element_${Date.now()}` }];
+      : [...elements, { ...updatedElement, id: `element_${Date.now()}` }];
 
     console.log("updatedElements", updatedElements);
 
     setElements(updatedElements); // update elements in slide
-
     updateDatabase(updatedElements); // update database
+
     setElementModalDisplay(false);
   };
 
@@ -122,6 +131,18 @@ const EditPresentation = () => {
       setPresentation(updatedPresentation);
     } catch (error) {
       console.error("Failed to save presentation to database:", error.message);
+    }
+  };
+
+  const formatUrl = (url) => {
+    const videoIdMatch = url.split("v=")[1]?.split("&")[0];
+    const videoId = videoIdMatch ? videoIdMatch : "";
+    console.log(videoId);
+    if (videoId) {
+      return `https://www.youtube-nocookie.com/embed/${videoId}`;
+    } else {
+      console.error("Invalid YouTube URL");
+      return url;
     }
   };
 
@@ -376,7 +397,7 @@ const EditPresentation = () => {
               />
             </>
           )}
-
+          {/* video */}
           {handlingElement?.type === "video" && (
             <>
               <TextField
@@ -409,6 +430,41 @@ const EditPresentation = () => {
                 />
                 AutoPlay
               </label>
+            </>
+          )}
+          {/* code */}
+          {handlingElement?.type === "code" && (
+            <>
+              <TextField
+                label="Code"
+                name="code"
+                value={handlingElement.code || ""}
+                onChange={handleChange}
+                fullWidth
+                multiline
+                rows={4}
+              />
+              <TextField
+                label="Font Size (em)"
+                name="fontSize"
+                value={handlingElement.fontSize || ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Width (%)"
+                name="width"
+                value={handlingElement.width || ""}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Height (%)"
+                name="height"
+                value={handlingElement.height || ""}
+                onChange={handleChange}
+                fullWidth
+              />
             </>
           )}
 
@@ -480,6 +536,14 @@ const EditPresentation = () => {
                   setHandlingElement(element);
                   setElementModalDisplay(true);
                 }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "100%",
+                  height: "100%",
+                  pointerEvents: "auto",
+                }}
               >
                 <iframe
                   src={`${element.url}${element.autoPlay ? "?autoplay=1" : ""}`}
@@ -489,10 +553,28 @@ const EditPresentation = () => {
                   allow="autoplay; encrypted-media"
                   allowFullScreen
                   style={{
-                    pointerEvents: "none",
+                    zIndex: 10,
+                    position: "relative",
+                    pointerEvents: "auto",
                   }}
                 />
               </Box>
+            )}
+
+            {element.type === "code" && element.code && (
+              <pre
+                style={{
+                  fontSize: `${element.fontSize}em`,
+                  whiteSpace: "pre-wrap",
+                  overflow: "hidden",
+                  maxHeight: "100%",
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: element.code
+                    ? hljs.highlightAuto(element.code).value
+                    : "",
+                }}
+              ></pre>
             )}
           </Box>
         ))}

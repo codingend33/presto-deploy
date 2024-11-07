@@ -25,7 +25,15 @@ const RegisterForm = () => {
         password,
         name,
       });
+
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+        navigate("/dashboard");
+      } else {
+        throw new Error("No token received");
+      }
       console.log(response);
+
       navigate("/dashboard");
     } catch (error) {
       console.error("Registration error:", error.message);
