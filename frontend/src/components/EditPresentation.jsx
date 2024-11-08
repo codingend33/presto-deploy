@@ -1,7 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import apiCall from "../api";
-import { TextField, Button, Box, Modal, IconButton } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Box,
+  Modal,
+  IconButton,
+  InputLabel,
+  FormControl,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import hljs from "highlight.js";
@@ -22,6 +32,13 @@ const EditPresentation = () => {
   const [elements, setElements] = useState([]); // store all elements of one slide
   const [elementModalDisplay, setElementModalDisplay] = useState(false); // manage element modal
   const [handlingElement, setHandlingElement] = useState(null); // manage currently editing element
+
+  const [backgroundModalDisplay, setBackgroundModalDisplay] = useState(false); //background modal
+  const [backgroundType, setBackgroundType] = useState("solid"); // background type
+  const [backgroundColor, setBackgroundColor] = useState("#ffffff"); // bgc
+  const [backgroundGradient, setBackgroundGradient] =
+    useState("#ffffff,#000000"); // gradient
+  const [backgroundImage, setBackgroundImage] = useState(""); // img
 
   const token = localStorage.getItem("token");
 
@@ -68,10 +85,10 @@ const EditPresentation = () => {
   // handle element change
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setHandlingElement({
-      ...handlingElement,
+    setHandlingElement((prev) => ({
+      ...prev,
       [name]: type === "checkbox" ? checked : value,
-    }); // store currently edited element
+    })); // store currently edited element
   };
 
   // save new and updated element
@@ -146,6 +163,62 @@ const EditPresentation = () => {
     }
   };
 
+  // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  const handleBackgroundTypeChange = (e) => {
+    setBackgroundType(e.target.value); //
+  };
+
+  const applyBackground = async () => {
+    const updatedSlides = [...presentation.slides];
+    const currentSlide = updatedSlides[currentSlideIndex];
+
+    if (backgroundType === "solid") {
+      currentSlide.background = { type: "solid", color: backgroundColor };
+    } else if (backgroundType === "gradient") {
+      const colors = backgroundGradient.split(",");
+      currentSlide.background = { type: "gradient", colors };
+    } else if (backgroundType === "image") {
+      currentSlide.background = { type: "image", url: backgroundImage };
+    }
+
+    const updatedPresentation = { ...presentation, slides: updatedSlides };
+    setPresentation({ ...presentation, slides: updatedSlides });
+    setBackgroundModalDisplay(false);
+
+    try {
+      await apiCall(
+        "/store",
+        "PUT",
+        { store: { [presentationId]: updatedPresentation } },
+        token
+      );
+    } catch (error) {
+      console.error("Failed to update background in database:", error.message);
+    }
+  };
+
+  const renderBackground = () => {
+    const slide = presentation.slides[currentSlideIndex];
+    if (!slide.background) return { backgroundColor: "#ffffff" };
+
+    if (slide.background.type === "solid") {
+      return { backgroundColor: slide.background.color };
+    }
+    if (slide.background.type === "gradient") {
+      return {
+        background: `linear-gradient(to right, ${slide.background.colors.join(
+          ", "
+        )})`,
+      };
+    }
+    if (slide.background.type === "image") {
+      return {
+        backgroundImage: `url(${slide.background.url})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      };
+    }
+  };
   // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // Delete Presentation
   const deletePresentation = async () => {
@@ -292,10 +365,24 @@ const EditPresentation = () => {
 
       {/* add elements  */}
       <Box sx={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-        <Button onClick={() => openNewElementModal("text")}>Add Text</Button>
-        <Button onClick={() => openNewElementModal("image")}>Add Image</Button>
-        <Button onClick={() => openNewElementModal("video")}>Add Video</Button>
-        <Button onClick={() => openNewElementModal("code")}>Add Code</Button>
+        <Button variant="outlined" onClick={() => openNewElementModal("text")}>
+          Add Text
+        </Button>
+        <Button variant="outlined" onClick={() => openNewElementModal("image")}>
+          Add Image
+        </Button>
+        <Button variant="outlined" onClick={() => openNewElementModal("video")}>
+          Add Video
+        </Button>
+        <Button variant="outlined" onClick={() => openNewElementModal("code")}>
+          Add Code
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={() => setBackgroundModalDisplay(true)}
+        >
+          Change Background
+        </Button>
       </Box>
 
       {/* edit elements modal */}
@@ -313,6 +400,7 @@ const EditPresentation = () => {
             value={handlingElement?.x || ""}
             onChange={handleChange}
             fullWidth
+            sx={{ mt: 2 }}
           />
           <TextField
             label="Y Position (%)"
@@ -320,6 +408,7 @@ const EditPresentation = () => {
             value={handlingElement?.y || ""}
             onChange={handleChange}
             fullWidth
+            sx={{ mt: 2 }}
           />
           {/* different type*/}
 
@@ -332,6 +421,7 @@ const EditPresentation = () => {
                 value={handlingElement.text || ""}
                 onChange={handleChange}
                 fullWidth
+                sx={{ mt: 2 }}
               />
               <TextField
                 label="Font Size (em)"
@@ -339,6 +429,7 @@ const EditPresentation = () => {
                 value={handlingElement.fontSize || ""}
                 onChange={handleChange}
                 fullWidth
+                sx={{ mt: 2 }}
               />
               <TextField
                 label="Color (HEX)"
@@ -346,6 +437,7 @@ const EditPresentation = () => {
                 value={handlingElement.color || ""}
                 onChange={handleChange}
                 fullWidth
+                sx={{ mt: 2 }}
               />
               <TextField
                 label="Width (%)"
@@ -353,6 +445,7 @@ const EditPresentation = () => {
                 value={handlingElement.width || ""}
                 onChange={handleChange}
                 fullWidth
+                sx={{ mt: 2 }}
               />
               <TextField
                 label="Height (%)"
@@ -360,7 +453,20 @@ const EditPresentation = () => {
                 value={handlingElement.height || ""}
                 onChange={handleChange}
                 fullWidth
+                sx={{ mt: 2 }}
               />
+              <FormControl fullWidth sx={{ mt: 2 }}>
+                <InputLabel>Font Family</InputLabel>
+                <Select
+                  value={handlingElement.fontFamily || ""}
+                  onChange={handleChange}
+                  name="fontFamily"
+                >
+                  <MenuItem value="Arial">Arial</MenuItem>
+                  <MenuItem value="Georgia">Georgia</MenuItem>
+                  <MenuItem value="Times New Roman">Times New Roman</MenuItem>
+                </Select>
+              </FormControl>
             </>
           )}
 
@@ -373,6 +479,7 @@ const EditPresentation = () => {
                 value={handlingElement.url || ""}
                 onChange={handleChange}
                 fullWidth
+                sx={{ mt: 2 }}
               />
               <TextField
                 label="Alt Text"
@@ -380,6 +487,7 @@ const EditPresentation = () => {
                 value={handlingElement.alt || ""}
                 onChange={handleChange}
                 fullWidth
+                sx={{ mt: 2 }}
               />
               <TextField
                 label="Width (%)"
@@ -387,6 +495,7 @@ const EditPresentation = () => {
                 value={handlingElement.width || ""}
                 onChange={handleChange}
                 fullWidth
+                sx={{ mt: 2 }}
               />
               <TextField
                 label="Height (%)"
@@ -394,6 +503,7 @@ const EditPresentation = () => {
                 value={handlingElement.height || ""}
                 onChange={handleChange}
                 fullWidth
+                sx={{ mt: 2 }}
               />
             </>
           )}
@@ -406,6 +516,7 @@ const EditPresentation = () => {
                 value={handlingElement.url || ""}
                 onChange={handleChange}
                 fullWidth
+                sx={{ mt: 2 }}
               />
               <TextField
                 label="Width (%)"
@@ -413,6 +524,7 @@ const EditPresentation = () => {
                 value={handlingElement.width || ""}
                 onChange={handleChange}
                 fullWidth
+                sx={{ mt: 2 }}
               />
               <TextField
                 label="Height (%)"
@@ -420,6 +532,7 @@ const EditPresentation = () => {
                 value={handlingElement.height || ""}
                 onChange={handleChange}
                 fullWidth
+                sx={{ mt: 2 }}
               />
               <label>
                 <input
@@ -443,6 +556,7 @@ const EditPresentation = () => {
                 fullWidth
                 multiline
                 rows={4}
+                sx={{ mt: 2 }}
               />
               <TextField
                 label="Font Size (em)"
@@ -450,6 +564,7 @@ const EditPresentation = () => {
                 value={handlingElement.fontSize || ""}
                 onChange={handleChange}
                 fullWidth
+                sx={{ mt: 2 }}
               />
               <TextField
                 label="Width (%)"
@@ -457,6 +572,7 @@ const EditPresentation = () => {
                 value={handlingElement.width || ""}
                 onChange={handleChange}
                 fullWidth
+                sx={{ mt: 2 }}
               />
               <TextField
                 label="Height (%)"
@@ -464,6 +580,7 @@ const EditPresentation = () => {
                 value={handlingElement.height || ""}
                 onChange={handleChange}
                 fullWidth
+                sx={{ mt: 2 }}
               />
             </>
           )}
@@ -477,8 +594,76 @@ const EditPresentation = () => {
         </Box>
       </Modal>
 
+      {/* bgc modal*/}
+      <Modal
+        open={backgroundModalDisplay}
+        onClose={() => setBackgroundModalDisplay(false)}
+      >
+        <Box sx={{ ...modalStyle }}>
+          <h2>Choose Background</h2>
+
+          {/* select */}
+          <FormControl fullWidth>
+            <InputLabel>Background Type</InputLabel>
+            <Select
+              value={backgroundType}
+              onChange={handleBackgroundTypeChange}
+              name="backgroundType"
+            >
+              <MenuItem value="solid">Solid Color</MenuItem>
+              <MenuItem value="gradient">Gradient</MenuItem>
+              <MenuItem value="image">Image</MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* different type with different input */}
+          {backgroundType === "solid" && (
+            <TextField
+              label="Background Color"
+              type="color"
+              value={backgroundColor}
+              onChange={(e) => setBackgroundColor(e.target.value)}
+              fullWidth
+              sx={{ mt: 2 }}
+            />
+          )}
+
+          {backgroundType === "gradient" && (
+            <TextField
+              label="Gradient Colors (comma-separated)"
+              placeholder="#ffffff,#000000"
+              value={backgroundGradient}
+              onChange={(e) => setBackgroundGradient(e.target.value)}
+              fullWidth
+              sx={{ mt: 2 }}
+            />
+          )}
+
+          {backgroundType === "image" && (
+            <TextField
+              label="Image URL"
+              placeholder="https://example.com/image.jpg"
+              value={backgroundImage}
+              onChange={(e) => setBackgroundImage(e.target.value)}
+              fullWidth
+              sx={{ mt: 2 }}
+            />
+          )}
+
+          {/* apply backgroundType */}
+          <Button
+            variant="contained"
+            onClick={applyBackground}
+            sx={{ mt: 2 }}
+            fullWidth
+          >
+            Apply
+          </Button>
+        </Box>
+      </Modal>
+
       {/* render element  */}
-      <Box sx={{ ...slideBox }}>
+      <Box sx={{ ...slideBox, ...renderBackground() }}>
         {elements.map((element) => (
           <Box
             key={element.id}
@@ -488,6 +673,7 @@ const EditPresentation = () => {
               top: `${element.y}%`,
               width: `${element.width}%`,
               height: `${element.height}%`,
+              fontFamily: element.fontFamily || "inherit",
               border: "1px solid grey",
               padding: "5px",
               margin: "5px",

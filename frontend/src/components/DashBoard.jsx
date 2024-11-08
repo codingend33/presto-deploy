@@ -24,6 +24,7 @@ const Dashboard = () => {
           const updatedPresentations = Object.keys(response.store).reduce(
             (acc, key) => {
               const pres = response.store[key];
+
               const thumbnail =
                 pres.thumbnail ||
                 (pres.slides && pres.slides.length > 0
