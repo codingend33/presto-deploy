@@ -11,11 +11,13 @@ const PreviewViewing = () => {
   const presentationId = params.id;
   const [presentation, setPresentation] = useState(null);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const getPresentation = async () => {
       try {
+        setLoading(true);
         const response = await apiCall("/store", "GET", {}, token);
         console.log("API Response:", response);
         if (response && response.store && response.store[presentationId]) {
@@ -25,6 +27,8 @@ const PreviewViewing = () => {
         }
       } catch (error) {
         console.error("Failed to load presentation:", error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -56,6 +60,10 @@ const PreviewViewing = () => {
       );
     }
   };
+
+  if (loading) {
+    return <div>loading...</div>;
+  }
 
   const currentSlide = presentation.slides[currentSlideIndex];
 
@@ -126,6 +134,21 @@ const PreviewViewing = () => {
     }
   };
 
+  const backgroundStyle = currentSlide.background
+    ? currentSlide.background.type === "gradient"
+      ? {
+          background: `linear-gradient(${currentSlide.background.colors.join(
+            ", "
+          )})`,
+        }
+      : currentSlide.background.type === "image"
+      ? {
+          backgroundImage: `url(${currentSlide.background.url})`,
+          backgroundSize: "cover",
+        }
+      : { backgroundColor: currentSlide.background.color || "#ffffff" }
+    : { backgroundColor: "#ffffff" };
+
   return (
     <Box
       sx={{
@@ -137,6 +160,7 @@ const PreviewViewing = () => {
         justifyContent: "center",
         overflow: "hidden",
         position: "relative",
+        ...backgroundStyle,
       }}
     >
       <Box
@@ -160,6 +184,10 @@ const PreviewViewing = () => {
           alignItems: "center",
           gap: 2,
           color: "white",
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          "&:hover": {
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+          },
         }}
       >
         <IconButton
@@ -167,6 +195,10 @@ const PreviewViewing = () => {
           disabled={currentSlideIndex === 0}
           sx={{
             color: "white",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            "&:hover": {
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
+            },
           }}
         >
           <ArrowBackIcon />
@@ -179,6 +211,10 @@ const PreviewViewing = () => {
           disabled={currentSlideIndex === presentation.slides.length - 1}
           sx={{
             color: "white",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            "&:hover": {
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
+            },
           }}
         >
           <ArrowForwardIcon />
