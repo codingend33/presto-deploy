@@ -7,6 +7,7 @@ import Dashboard from "./components/DashBoard";
 import EditPresentation from "./components/EditPresentation";
 import Logout from "./pages/Logout";
 import NotFound from "./pages/404";
+import PreviewViewing from "./components/PreviewViewing";
 
 const router = createBrowserRouter([
   { path: "/", element: <Home /> },
@@ -16,6 +17,7 @@ const router = createBrowserRouter([
   { path: "/dashboard", element: <Dashboard /> },
   { path: "/presentations/:id", element: <EditPresentation /> },
   { path: "*", element: <NotFound /> },
+  { path: "/preview/:id", element: <PreviewViewing /> },
 ]);
 
 export default router;

@@ -338,6 +338,10 @@ const EditPresentation = () => {
     return <div>No presentation...</div>;
   }
 
+  const openPreview = () => {
+    window.open(`/preview/${presentationId}`, "_blank");
+  };
+
   return (
     <Box
       sx={{ padding: "20px" }}
@@ -382,6 +386,9 @@ const EditPresentation = () => {
           onClick={() => setBackgroundModalDisplay(true)}
         >
           Change Background
+        </Button>
+        <Button onClick={openPreview} variant="contained" sx={{ mt: 2 }}>
+          Preview
         </Button>
       </Box>
 
