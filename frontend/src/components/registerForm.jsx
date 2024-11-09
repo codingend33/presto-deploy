@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiCall from "../api";
-import { TextField, Button, Box } from "@mui/material";
+import { Box, TextField, Button } from "@mui/material";
 
 const RegisterForm = () => {
   const [email, setEmail] = useState("");
@@ -33,47 +33,66 @@ const RegisterForm = () => {
 
   return (
     <form onSubmit={handleRegister}>
-      <Box
-        sx={{ "& > :not(style)": { m: 1, width: "25ch" } }}
-        noValidate
-        autoComplete="off"
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
       >
-        <TextField
-          id="email"
-          label="Email"
-          variant="filled"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <TextField
-          id="name"
-          label="Name"
-          variant="filled"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <TextField
-          id="password"
-          label="Password"
-          type="password"
-          variant="filled"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <TextField
-          id="confirm password"
-          label="Confirm Password"
-          type="password"
-          variant="filled"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
-      </Box>
+        <Box
+          sx={{
+            "& > :not(style)": { m: 1, width: "30ch" },
+            display: "flex",
+            flexDirection: "column",
+            gap: "5px",
+          }}
+          noValidate
+          autoComplete="off"
+        >
+          <TextField
+            required
+            id="email"
+            type="email"
+            label="Email"
+            variant="filled"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            required
+            id="name"
+            label="Name"
+            variant="filled"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <TextField
+            required
+            id="password"
+            label="Password"
+            type="password"
+            variant="filled"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <TextField
+            required
+            id="confirm password"
+            label="Confirm Password"
+            type="password"
+            variant="filled"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+        </Box>
 
-      <Button variant="contained" type="submit">
-        Register
-      </Button>
-
+        <Button variant="contained" type="submit" sx={{ mt: 2 }}>
+          Register
+        </Button>
+      </div>
       {error && <p style={{ color: "red" }}>{error}</p>}
     </form>
   );

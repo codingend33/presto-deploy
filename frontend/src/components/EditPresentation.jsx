@@ -17,6 +17,19 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import hljs from "highlight.js";
 import "highlight.js/styles/default.css";
 
+import ListSubheader from "@mui/material/ListSubheader";
+import List from "@mui/material/List";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Collapse from "@mui/material/Collapse";
+import InboxIcon from "@mui/icons-material/MoveToInbox";
+import DraftsIcon from "@mui/icons-material/Drafts";
+import SendIcon from "@mui/icons-material/Send";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import StarBorder from "@mui/icons-material/StarBorder";
+
 const EditPresentation = () => {
   const params = useParams();
   let presentationId = params.id;
@@ -39,6 +52,8 @@ const EditPresentation = () => {
   const [backgroundGradient, setBackgroundGradient] =
     useState("#ffffff,#000000"); // gradient
   const [backgroundImage, setBackgroundImage] = useState(""); // img
+
+  const [open, setOpen] = React.useState(true);
 
   const token = localStorage.getItem("token");
 
@@ -68,6 +83,10 @@ const EditPresentation = () => {
     };
     getPresentation();
   }, [presentationId, token, currentSlideIndex]);
+
+  const handleClick = () => {
+    setOpen(!open);
+  };
 
   // open element modal
   const openNewElementModal = (type) => {
@@ -349,7 +368,9 @@ const EditPresentation = () => {
 
   return (
     <Box
-      sx={{ padding: "20px" }}
+      sx={{
+        padding: "20px",
+      }}
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "ArrowLeft") goToPreviousSlide();
@@ -371,38 +392,101 @@ const EditPresentation = () => {
 
       <h1>{presentation.title}</h1>
 
-      <div>
-        <Button onClick={() => setDeletePopup(true)}>
-          Delete Presentation
-        </Button>
-        <Button onClick={() => setShowTitleEditModal(true)}>
-          Edit Title & Thumbnail
-        </Button>
-      </div>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          gap: "20px",
+          alignItems: "flex-start",
+        }}
+      >
+        <Box sx={{ width: "250px", bgcolor: "background.paper" }}>
+          <List
+            sx={{ width: "100%", maxWidth: 250, bgcolor: "background.paper" }}
+            component="nav"
+            aria-labelledby="nested-list-subheader"
+            subheader={
+              <ListSubheader component="div" id="nested-list-subheader">
+                Tools list
+              </ListSubheader>
+            }
+          >
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <Button variant="text" onClick={() => setDeletePopup(true)}>
+                Delete Presentation
+              </Button>
+              <Button
+                variant="text"
+                color="primary"
+                onClick={() => setShowTitleEditModal(true)}
+              >
+                Edit Title & Thumbnail
+              </Button>
+              <Button
+                variant="text"
+                onClick={() => setBackgroundModalDisplay(true)}
+              >
+                Change Background
+              </Button>
+            </Box>
 
-      {/* add elements  */}
-      <Box sx={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-        <Button variant="outlined" onClick={() => openNewElementModal("text")}>
-          Add Text
-        </Button>
-        <Button variant="outlined" onClick={() => openNewElementModal("image")}>
-          Add Image
-        </Button>
-        <Button variant="outlined" onClick={() => openNewElementModal("video")}>
-          Add Video
-        </Button>
-        <Button variant="outlined" onClick={() => openNewElementModal("code")}>
-          Add Code
-        </Button>
-        <Button
-          variant="outlined"
-          onClick={() => setBackgroundModalDisplay(true)}
-        >
-          Change Background
-        </Button>
-        <Button onClick={openPreview} variant="contained" sx={{ mt: 2 }}>
-          Preview
-        </Button>
+            <ListItemButton onClick={handleClick}>
+              <ListItemText primary="Add elements" />
+              {open ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+
+            <Collapse in={open} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                {/* add elements  */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "10px",
+                    marginTop: "10px",
+                  }}
+                >
+                  <Button
+                    variant="text"
+                    onClick={() => openNewElementModal("text")}
+                  >
+                    Add Text
+                  </Button>
+                  <Button
+                    variant="text"
+                    onClick={() => openNewElementModal("image")}
+                  >
+                    Add Image
+                  </Button>
+                  <Button
+                    variant="text"
+                    onClick={() => openNewElementModal("video")}
+                  >
+                    Add Video
+                  </Button>
+                  <Button
+                    variant="text"
+                    onClick={() => openNewElementModal("code")}
+                  >
+                    Add Code
+                  </Button>
+                </Box>
+              </List>
+            </Collapse>
+
+            <ListItemButton>
+              <ListItemText primary="Sent mail" />
+            </ListItemButton>
+
+            <ListItemButton>
+              <ListItemText primary="Drafts" />
+            </ListItemButton>
+          </List>
+
+          <Button onClick={openPreview} variant="contained" sx={{ mt: 2 }}>
+            Preview
+          </Button>
+        </Box>
       </Box>
 
       {/* edit elements modal */}
@@ -692,119 +776,6 @@ const EditPresentation = () => {
           </Button>
         </Box>
       </Modal>
-
-      {/* render element  */}
-      <Box sx={{ ...slideBox, ...renderBackground() }}>
-        {elements
-          .slice()
-          .sort((a, b) => a.layer - b.layer)
-          .map((element) => (
-            <Box
-              key={element.id}
-              sx={{
-                position: "absolute",
-                left: `${element.x}%`,
-                top: `${element.y}%`,
-                width: `${element.width}%`,
-                height: `${element.height}%`,
-                fontFamily: element.fontFamily || "inherit",
-                border: "1px solid grey",
-                padding: "5px",
-                margin: "5px",
-                zIndex: element.layer,
-              }}
-              // double click edit element
-              onDoubleClick={() => {
-                setHandlingElement(element);
-                setElementModalDisplay(true);
-              }}
-              // right click delete element
-              onContextMenu={(e) => {
-                e.preventDefault();
-                deleteElement(element.id);
-              }}
-            >
-              {/* render different element */}
-
-              {/* text */}
-              {element.type === "text" && (
-                <div
-                  style={{
-                    fontSize: `${element.fontSize}em`,
-                    color: element.color,
-                    overflow: "hidden",
-                    whiteSpace: "normal",
-                    maxHeight: "100%",
-                  }}
-                >
-                  {element.text}
-                </div>
-              )}
-
-              {/* image */}
-              {element.type === "image" && (
-                <img
-                  src={element.url}
-                  alt={element.alt}
-                  style={{ width: "100%", height: "100%" }}
-                />
-              )}
-
-              {/* video */}
-              {element.type === "video" && (
-                <Box
-                  onDoubleClick={() => {
-                    setHandlingElement(element);
-                    setElementModalDisplay(true);
-                  }}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: "100%",
-                    height: "100%",
-                    pointerEvents: "auto",
-                  }}
-                >
-                  <iframe
-                    src={`${element.url}${
-                      element.autoPlay ? "?autoplay=1" : ""
-                    }`}
-                    title="YouTube video"
-                    width="100%"
-                    height="100%"
-                    allow="autoplay; encrypted-media"
-                    allowFullScreen
-                    style={{
-                      zIndex: 10,
-                      position: "relative",
-                      pointerEvents: "auto",
-                    }}
-                  />
-                </Box>
-              )}
-
-              {element.type === "code" && element.code && (
-                <pre
-                  style={{
-                    fontSize: `${element.fontSize}em`,
-                    whiteSpace: "pre-wrap",
-                    overflow: "hidden",
-                    maxHeight: "100%",
-                    margin: 0,
-                  }}
-                  dangerouslySetInnerHTML={{
-                    __html: element.code
-                      ? hljs.highlightAuto(element.code).value
-                      : "",
-                  }}
-                ></pre>
-              )}
-            </Box>
-          ))}
-
-        <Box sx={{ ...slideNumberBox }}>{currentSlideIndex + 1}</Box>
-      </Box>
 
       {/* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */}
 
