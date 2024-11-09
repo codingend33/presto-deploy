@@ -17,7 +17,6 @@ const PresentationCard = ({ presentation, presentationId }) => {
     navigate(`/presentations/${presentationId}`);
   };
 
-  // 格式化更新时间
   const formatDate = (dateString) => {
     if (!dateString) return "Unknown";
     const date = new Date(dateString);

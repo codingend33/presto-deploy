@@ -12,6 +12,7 @@ const PreviewViewing = () => {
   const [presentation, setPresentation] = useState(null);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -19,14 +20,13 @@ const PreviewViewing = () => {
       try {
         setLoading(true);
         const response = await apiCall("/store", "GET", {}, token);
-        console.log("API Response:", response);
         if (response && response.store && response.store[presentationId]) {
           setPresentation(response.store[presentationId]);
         } else {
-          console.error("Presentation not found");
+          setError("Presentation not found");
         }
       } catch (error) {
-        console.error("Failed to load presentation:", error.message);
+        setError("Failed to load presentation:", error.message);
       } finally {
         setLoading(false);
       }
@@ -220,6 +220,7 @@ const PreviewViewing = () => {
           <ArrowForwardIcon />
         </IconButton>
       </Box>
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </Box>
   );
 };

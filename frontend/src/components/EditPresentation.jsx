@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import apiCall from "../api";
 import {
   TextField,
@@ -18,21 +18,17 @@ import hljs from "highlight.js";
 import "highlight.js/styles/default.css";
 import ListSubheader from "@mui/material/ListSubheader";
 import List from "@mui/material/List";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import DraftsIcon from "@mui/icons-material/Drafts";
-import SendIcon from "@mui/icons-material/Send";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import StarBorder from "@mui/icons-material/StarBorder";
+
 const EditPresentation = () => {
   const params = useParams();
   let presentationId = params.id;
   const navigate = useNavigate();
   const [presentation, setPresentation] = useState(null);
+  const location = useLocation();
   const [title, setTitle] = useState("");
   const [thumbnail, setThumbnail] = useState("");
   const [customThumbnailURL, setCustomThumbnailURL] = useState("");
@@ -49,7 +45,9 @@ const EditPresentation = () => {
     useState("#ffffff,#000000"); // gradient
   const [backgroundImage, setBackgroundImage] = useState(""); // img
   const [open, setOpen] = React.useState(true);
+  const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
+
   useEffect(() => {
     const getPresentation = async () => {
       try {
@@ -60,22 +58,21 @@ const EditPresentation = () => {
           const currentPres = userStore[presentationId];
           setPresentation(currentPres);
           setTitle(currentPres.title || "");
-          setThumbnail(
-            currentPres.thumbnail ||
-              (currentPres.slides && currentPres.slides.length > 0
-                ? currentPres.slides[0].content
-                : "")
+          setThumbnail(currentPres.thumbnail || "");
+          const urlSlideIndex = new URLSearchParams(location.search).get(
+            "slide"
           );
+          setCurrentSlideIndex(urlSlideIndex ? parseInt(urlSlideIndex) : 0);
           setElements(currentPres.slides[currentSlideIndex]?.elements || []);
         } else {
-          console.error("Presentation not found");
+          setError("Presentation not found");
         }
       } catch (error) {
-        console.error("Failed to get presentation:", error.message);
+        setError("Failed to get presentation:", error.message);
       }
     };
     getPresentation();
-  }, [presentationId, token, currentSlideIndex]);
+  }, [presentationId, token, location.search]);
   const handleClick = () => {
     setOpen(!open);
   };
@@ -151,7 +148,7 @@ const EditPresentation = () => {
       await apiCall("/store", "PUT", { store: updatedStore }, token);
       setPresentation(updatedPresentation);
     } catch (error) {
-      console.error("Failed to save presentation to database:", error.message);
+      setError("Failed to save presentation to database:", error.message);
     }
   };
   const formatUrl = (url) => {
@@ -161,7 +158,7 @@ const EditPresentation = () => {
     if (videoId) {
       return `https://www.youtube-nocookie.com/embed/${videoId}`;
     } else {
-      console.error("Invalid YouTube URL");
+      setError("Invalid YouTube URL");
       return url;
     }
   };
@@ -191,7 +188,7 @@ const EditPresentation = () => {
         token
       );
     } catch (error) {
-      console.error("Failed to update background in database:", error.message);
+      setError("Failed to update background in database:", error.message);
     }
   };
   const renderBackground = () => {
@@ -225,7 +222,7 @@ const EditPresentation = () => {
       await apiCall("/store", "PUT", { store: getStore }, token);
       navigate("/dashboard");
     } catch (error) {
-      console.error("Failed to delete presentation:", error.message);
+      setError("Failed to delete presentation:", error.message);
     }
   };
   const saveTitleAndThumbnail = async () => {
@@ -244,18 +241,25 @@ const EditPresentation = () => {
       setPresentation(updatedPresentation);
       setShowTitleEditModal(false);
     } catch (error) {
-      console.error("Failed to update title:", error.message);
+      setError("Failed to update title:", error.message);
+    }
+  };
+
+  const updateSlideIndex = (newIndex) => {
+    if (newIndex >= 0 && newIndex < presentation.slides.length) {
+      setCurrentSlideIndex(newIndex);
+      navigate(`${location.pathname}?slide=${newIndex}`);
     }
   };
   // Navigate Slides
   const goToPreviousSlide = () => {
     if (currentSlideIndex > 0) {
-      setCurrentSlideIndex(currentSlideIndex - 1);
+      updateSlideIndex(currentSlideIndex - 1);
     }
   };
   const goToNextSlide = () => {
     if (currentSlideIndex < presentation.slides.length - 1) {
-      setCurrentSlideIndex(currentSlideIndex + 1);
+      updateSlideIndex(currentSlideIndex + 1);
     }
   };
   // Add New Slide
@@ -283,15 +287,20 @@ const EditPresentation = () => {
       };
       await apiCall("/store", "PUT", { store: updatedStore }, token);
       setPresentation(updatedPresentation);
-      setCurrentSlideIndex(updatedPresentation.slides.length - 1);
+      const newSlideIndex = updatedPresentation.slides.length - 1;
+      setCurrentSlideIndex(newSlideIndex);
+      navigate(`${location.pathname}?slide=${newSlideIndex}`);
     } catch (error) {
-      console.error("Failed to add slide:", error.message);
+      setError("Failed to add slide:", error.message);
     }
   };
+
   // Delete Slide
   const deleteSlide = async () => {
     if (presentation.slides.length === 1) {
-      alert("Cannot delete the only slide. Delete the presentation instead.");
+      setError(
+        "Cannot delete the only slide. Delete the presentation instead."
+      );
       return;
     }
     const updatedSlides = presentation.slides.filter(
@@ -313,9 +322,24 @@ const EditPresentation = () => {
       };
       await apiCall("/store", "PUT", { store: updatedStore }, token);
       setPresentation(updatedPresentation);
-      setCurrentSlideIndex(Math.max(currentSlideIndex - 1, 0));
+
+      let newSlideIndex;
+      if (currentSlideIndex > 0) {
+        newSlideIndex = currentSlideIndex - 1;
+      } else if (sortedSlides.length > 0) {
+        newSlideIndex = currentSlideIndex;
+      } else {
+        newSlideIndex = -1;
+        setError(
+          "No slides available to show. You may delete the entire presentation instead."
+        );
+        return;
+      }
+      setCurrentSlideIndex(newSlideIndex);
+      setElements(updatedPresentation.slides[newSlideIndex]?.elements || []);
+      navigate(`${location.pathname}?slide=${newSlideIndex}`);
     } catch (error) {
-      console.error("Failed to delete slide:", error.message);
+      setError("Failed to delete slide:", error.message);
     }
   };
   if (!presentation) {
@@ -370,7 +394,12 @@ const EditPresentation = () => {
             }
           >
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <Button onClick={openPreview} variant="contained" sx={{ mt: 2 }}>
+              <Button
+                onClick={openPreview}
+                variant="contained"
+                sx={{ mt: 2 }}
+                color="success"
+              >
                 Preview
               </Button>
               <Button
@@ -387,10 +416,14 @@ const EditPresentation = () => {
                 Change Background
               </Button>
             </Box>
-            <ListItemButton onClick={handleClick}>
+            <Button
+              variant="contained"
+              onClick={handleClick}
+              sx={{ width: "100%" }}
+            >
               <ListItemText primary="Add elements" />
               {open ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
+            </Button>
             <Collapse in={open} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 {/* add elements  */}
@@ -428,15 +461,19 @@ const EditPresentation = () => {
                   </Button>
                 </Box>
               </List>
-            </Collapse>{" "}
+            </Collapse>
+            <Box
+              sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 3 }}
+            >
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={() => setDeletePopup(true)}
+              >
+                Delete Presentation
+              </Button>
+            </Box>
           </List>
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={() => setDeletePopup(true)}
-          >
-            Delete Presentation
-          </Button>
         </Box>
         <Box>
           {/* render element  */}
@@ -455,7 +492,7 @@ const EditPresentation = () => {
                     height: `${element.height}%`,
                     fontFamily: element.fontFamily || "inherit",
                     border: "1px solid grey",
-                    padding: "5px",
+                    padding: "10px",
                     margin: "5px",
                     zIndex: element.layer,
                   }}
@@ -603,10 +640,17 @@ const EditPresentation = () => {
             sx={{ mt: 2 }}
             helperText="Higher layer values will appear on top"
           />
+
           {/* different type*/}
           {/* text */}
           {handlingElement?.type === "text" && (
-            <>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 2,
+              }}
+            >
               <TextField
                 label="Text"
                 name="text"
@@ -659,11 +703,17 @@ const EditPresentation = () => {
                   <MenuItem value="Times New Roman">Times New Roman</MenuItem>
                 </Select>
               </FormControl>
-            </>
+            </Box>
           )}
           {/* image */}
           {handlingElement?.type === "image" && (
-            <>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 2,
+              }}
+            >
               <TextField
                 label="Image URL"
                 name="url"
@@ -696,11 +746,17 @@ const EditPresentation = () => {
                 fullWidth
                 sx={{ mt: 2 }}
               />
-            </>
+            </Box>
           )}
           {/* video */}
           {handlingElement?.type === "video" && (
-            <>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 2,
+              }}
+            >
               <TextField
                 label="Video URL"
                 name="url"
@@ -734,11 +790,17 @@ const EditPresentation = () => {
                 />
                 AutoPlay
               </label>
-            </>
+            </Box>
           )}
           {/* code */}
           {handlingElement?.type === "code" && (
-            <>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 2,
+              }}
+            >
               <TextField
                 label="Code"
                 name="code"
@@ -773,7 +835,7 @@ const EditPresentation = () => {
                 fullWidth
                 sx={{ mt: 2 }}
               />
-            </>
+            </Box>
           )}
           {/* save button */}
           <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
@@ -866,13 +928,14 @@ const EditPresentation = () => {
           />
           <TextField
             label="Custom Thumbnail URL"
-            value={customThumbnailURL}
+            value={customThumbnailURL || thumbnail}
             onChange={(e) => setCustomThumbnailURL(e.target.value)}
             fullWidth
           />
           <Button onClick={saveTitleAndThumbnail}>Save</Button>
         </Box>
       </Modal>
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </Box>
   );
 };
@@ -922,5 +985,8 @@ const modalStyle = {
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 4,
+  display: "flex",
+  flexDirection: "column",
+  gap: 1,
 };
 export default EditPresentation;

@@ -11,6 +11,7 @@ const Dashboard = () => {
   const [newDescription, setNewDescription] = useState("");
   const [newThumbnail, setNewThumbnail] = useState("");
   const navigate = useNavigate();
+  const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("email");
 
@@ -18,7 +19,6 @@ const Dashboard = () => {
     const getPresentations = async () => {
       try {
         const response = await apiCall("/store", "GET", {}, token);
-        console.log("Response:", response);
         if (response && response.store) {
           const updatedPresentations = Object.keys(response.store).reduce(
             (acc, key) => {
@@ -35,11 +35,11 @@ const Dashboard = () => {
           );
           setPresentations(updatedPresentations);
         } else {
-          console.warn("No store available");
+          setError("No store available");
           setPresentations({});
         }
       } catch (error) {
-        console.error("Failed to get presentations:", error.message);
+        setError("Failed to get presentations:", error.message);
       }
     };
     getPresentations();
@@ -79,7 +79,7 @@ const Dashboard = () => {
       setPresentations(updatedStore);
       modalClose();
     } catch (error) {
-      console.error("Failed to create presentation:", error.message);
+      setError("Failed to create presentation:", error.message);
     }
   };
 
@@ -165,6 +165,7 @@ const Dashboard = () => {
           </div>
         </Box>
       </Modal>
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </Box>
   );
 };
