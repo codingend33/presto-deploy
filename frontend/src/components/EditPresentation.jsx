@@ -71,6 +71,10 @@ const EditPresentation = () => {
 
   // open element modal
   const openNewElementModal = (type) => {
+    const maxLayer = elements.reduce(
+      (max, element) => Math.max(max, element.layer || 0),
+      0
+    );
     setHandlingElement({
       type,
       x: 0,
@@ -78,6 +82,7 @@ const EditPresentation = () => {
       width: 50,
       height: 50,
       autoPlay: false,
+      layer: maxLayer + 1,
     }); //initial element setting
     setElementModalDisplay(true);
   };
@@ -417,6 +422,17 @@ const EditPresentation = () => {
             fullWidth
             sx={{ mt: 2 }}
           />
+          <TextField
+            label="Layer (z-index)"
+            name="layer"
+            type="number"
+            value={handlingElement?.layer || 1}
+            onChange={handleChange}
+            fullWidth
+            sx={{ mt: 2 }}
+            helperText="Higher layer values will appear on top"
+          />
+
           {/* different type*/}
 
           {/* text */}
@@ -671,106 +687,113 @@ const EditPresentation = () => {
 
       {/* render element  */}
       <Box sx={{ ...slideBox, ...renderBackground() }}>
-        {elements.map((element) => (
-          <Box
-            key={element.id}
-            sx={{
-              position: "absolute",
-              left: `${element.x}%`,
-              top: `${element.y}%`,
-              width: `${element.width}%`,
-              height: `${element.height}%`,
-              fontFamily: element.fontFamily || "inherit",
-              border: "1px solid grey",
-              padding: "5px",
-              margin: "5px",
-            }}
-            // double click edit element
-            onDoubleClick={() => {
-              setHandlingElement(element);
-              setElementModalDisplay(true);
-            }}
-            // right click delete element
-            onContextMenu={(e) => {
-              e.preventDefault();
-              deleteElement(element.id);
-            }}
-          >
-            {/* render different element */}
+        {elements
+          .slice()
+          .sort((a, b) => a.layer - b.layer)
+          .map((element) => (
+            <Box
+              key={element.id}
+              sx={{
+                position: "absolute",
+                left: `${element.x}%`,
+                top: `${element.y}%`,
+                width: `${element.width}%`,
+                height: `${element.height}%`,
+                fontFamily: element.fontFamily || "inherit",
+                border: "1px solid grey",
+                padding: "5px",
+                margin: "5px",
+                zIndex: element.layer,
+              }}
+              // double click edit element
+              onDoubleClick={() => {
+                setHandlingElement(element);
+                setElementModalDisplay(true);
+              }}
+              // right click delete element
+              onContextMenu={(e) => {
+                e.preventDefault();
+                deleteElement(element.id);
+              }}
+            >
+              {/* render different element */}
 
-            {/* text */}
-            {element.type === "text" && (
-              <div
-                style={{
-                  fontSize: `${element.fontSize}em`,
-                  color: element.color,
-                  overflow: "hidden",
-                  whiteSpace: "normal",
-                  maxHeight: "100%",
-                }}
-              >
-                {element.text}
-              </div>
-            )}
-
-            {/* image */}
-            {element.type === "image" && (
-              <img
-                src={element.url}
-                alt={element.alt}
-                style={{ width: "100%", height: "100%" }}
-              />
-            )}
-
-            {/* video */}
-            {element.type === "video" && (
-              <Box
-                onDoubleClick={() => {
-                  setHandlingElement(element);
-                  setElementModalDisplay(true);
-                }}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "100%",
-                  height: "100%",
-                  pointerEvents: "auto",
-                }}
-              >
-                <iframe
-                  src={`${element.url}${element.autoPlay ? "?autoplay=1" : ""}`}
-                  title="YouTube video"
-                  width="100%"
-                  height="100%"
-                  allow="autoplay; encrypted-media"
-                  allowFullScreen
+              {/* text */}
+              {element.type === "text" && (
+                <div
                   style={{
-                    zIndex: 10,
-                    position: "relative",
+                    fontSize: `${element.fontSize}em`,
+                    color: element.color,
+                    overflow: "hidden",
+                    whiteSpace: "normal",
+                    maxHeight: "100%",
+                  }}
+                >
+                  {element.text}
+                </div>
+              )}
+
+              {/* image */}
+              {element.type === "image" && (
+                <img
+                  src={element.url}
+                  alt={element.alt}
+                  style={{ width: "100%", height: "100%" }}
+                />
+              )}
+
+              {/* video */}
+              {element.type === "video" && (
+                <Box
+                  onDoubleClick={() => {
+                    setHandlingElement(element);
+                    setElementModalDisplay(true);
+                  }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "100%",
+                    height: "100%",
                     pointerEvents: "auto",
                   }}
-                />
-              </Box>
-            )}
+                >
+                  <iframe
+                    src={`${element.url}${
+                      element.autoPlay ? "?autoplay=1" : ""
+                    }`}
+                    title="YouTube video"
+                    width="100%"
+                    height="100%"
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                    style={{
+                      zIndex: 10,
+                      position: "relative",
+                      pointerEvents: "auto",
+                    }}
+                  />
+                </Box>
+              )}
 
-            {element.type === "code" && element.code && (
-              <pre
-                style={{
-                  fontSize: `${element.fontSize}em`,
-                  whiteSpace: "pre-wrap",
-                  overflow: "hidden",
-                  maxHeight: "100%",
-                }}
-                dangerouslySetInnerHTML={{
-                  __html: element.code
-                    ? hljs.highlightAuto(element.code).value
-                    : "",
-                }}
-              ></pre>
-            )}
-          </Box>
-        ))}
+              {element.type === "code" && element.code && (
+                <pre
+                  style={{
+                    fontSize: `${element.fontSize}em`,
+                    whiteSpace: "pre-wrap",
+                    overflow: "hidden",
+                    maxHeight: "100%",
+                    margin: 0,
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: element.code
+                      ? hljs.highlightAuto(element.code).value
+                      : "",
+                  }}
+                ></pre>
+              )}
+            </Box>
+          ))}
 
         <Box sx={{ ...slideNumberBox }}>{currentSlideIndex + 1}</Box>
       </Box>
