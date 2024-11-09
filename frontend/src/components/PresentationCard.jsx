@@ -1,17 +1,31 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
-import CardMedia from "@mui/material/CardMedia";
-import CardActionArea from "@mui/material/CardActionArea";
+
+import {
+  Card,
+  CardContent,
+  Box,
+  CardMedia,
+  Typography,
+  CardActionArea,
+} from "@mui/material";
 
 const PresentationCard = ({ presentation, presentationId }) => {
   const navigate = useNavigate();
-  console.log("length", presentation.slides.length);
-  console.log("thumbnail", presentation.thumbnail);
+
   const handleClick = () => {
     navigate(`/presentations/${presentationId}`);
+  };
+
+  // 格式化更新时间
+  const formatDate = (dateString) => {
+    if (!dateString) return "Unknown";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
   };
 
   return (
@@ -38,18 +52,22 @@ const PresentationCard = ({ presentation, presentationId }) => {
             display: "flex",
             flexDirection: "column",
             gap: "3px",
-            padding: "10px",
+            paddingBottom: "5px",
           }}
         >
           <Typography variant="h5">
-            {" "}
-            {presentation.title || "Untitled"}{" "}
+            {presentation.title || "Untitled"}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {presentation.description || "No description"}
+            Description: {presentation.description || "No description"}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Slides: {presentation.slides ? presentation.slides.length : 0}
+          <Typography variant="body2" color="text.secondary" component="div">
+            <Box display="flex" justifyContent="space-between">
+              <span>
+                Slides: {presentation.slides ? presentation.slides.length : 0}
+              </span>
+              <span>Created At: {formatDate(presentation.createdAt)}</span>
+            </Box>
           </Typography>
         </CardContent>
       </CardActionArea>
@@ -77,6 +95,7 @@ const cardMediaStyle = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
+  paddingTop: "5px",
 };
 
 export default PresentationCard;

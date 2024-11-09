@@ -36,33 +36,49 @@ const LoginForm = () => {
   return (
     // pressing enter key to login
     <form onSubmit={handleLogin}>
-      <Box
-        sx={{ "& > :not(style)": { m: 1, width: "25ch" } }}
-        noValidate
-        autoComplete="off"
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
       >
-        <TextField
-          id="email"
-          label="Email"
-          variant="filled"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <TextField
-          id="password"
-          label="Password"
-          type="password"
-          variant="filled"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </Box>
-
-      <Button variant="contained" type="submit">
-        Login
-      </Button>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        <Box
+          sx={{
+            "& > :not(style)": { m: 1, width: "30ch" },
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+          }}
+          noValidate
+          autoComplete="off"
+        >
+          <TextField
+            required
+            id="email"
+            type="email"
+            label="Email"
+            variant="filled"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            required
+            id="password"
+            label="Password"
+            type="password"
+            variant="filled"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </Box>
+        <Button variant="contained" type="submit">
+          Login
+        </Button>
+        {error && <p style={{ color: "red" }}>{error}</p>}
+      </div>
     </form>
   );
 };

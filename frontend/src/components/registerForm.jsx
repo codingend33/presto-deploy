@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiCall from "../api";
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
+import { TextField, Button, Box } from "@mui/material";
 
 const RegisterForm = () => {
   const [email, setEmail] = useState("");
@@ -25,15 +23,7 @@ const RegisterForm = () => {
         password,
         name,
       });
-
-      if (response.token) {
-        localStorage.setItem("token", response.token);
-        navigate("/dashboard");
-      } else {
-        throw new Error("No token received");
-      }
       console.log(response);
-
       navigate("/dashboard");
     } catch (error) {
       console.error("Registration error:", error.message);
@@ -42,7 +32,6 @@ const RegisterForm = () => {
   };
 
   return (
-    // // pressing enter key to register
     <form onSubmit={handleRegister}>
       <Box
         sx={{ "& > :not(style)": { m: 1, width: "25ch" } }}

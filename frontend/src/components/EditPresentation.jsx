@@ -356,10 +356,18 @@ const EditPresentation = () => {
         if (e.key === "ArrowRight") goToNextSlide();
       }}
     >
-      <div>
-        <Button onClick={() => navigate("/logout")}>Logout</Button>
-        <Button onClick={() => navigate("/dashboard")}>Back</Button>
-      </div>
+      <Box display="flex" gap="10px">
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={() => navigate("/logout")}
+        >
+          Logout
+        </Button>
+        <Button variant="outlined" onClick={() => navigate("/dashboard")}>
+          Back
+        </Button>
+      </Box>
 
       <h1>{presentation.title}</h1>
 
@@ -854,7 +862,7 @@ const EditPresentation = () => {
 
 const slideBox = {
   position: "relative",
-  width: "100%",
+  maxWidth: "1000px",
   height: "400px",
   border: "1px solid #ddd",
   marginTop: "20px",

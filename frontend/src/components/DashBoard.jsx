@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiCall from "../api";
-import Button from "@mui/material/Button";
-import Modal from "@mui/material/Modal";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
+import { TextField, Button, Box, Modal } from "@mui/material";
 import PresentationCard from "../components/PresentationCard";
 
 const Dashboard = () => {
   const [presentations, setPresentations] = useState({});
   const [displayModal, setDisplayModal] = useState(false);
   const [newPresentationName, setNewPresentationName] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [newThumbnail, setNewThumbnail] = useState("");
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("email");
@@ -24,7 +23,6 @@ const Dashboard = () => {
           const updatedPresentations = Object.keys(response.store).reduce(
             (acc, key) => {
               const pres = response.store[key];
-
               const thumbnail =
                 pres.thumbnail ||
                 (pres.slides && pres.slides.length > 0
@@ -48,15 +46,22 @@ const Dashboard = () => {
   }, [token]);
 
   const modalOpen = () => setDisplayModal(true);
-  const modalClose = () => setDisplayModal(false);
+  const modalClose = () => {
+    setNewPresentationName("");
+    setNewDescription("");
+    setNewThumbnail("");
+    setDisplayModal(false);
+  };
 
   const createPresentation = async () => {
+    const currentTime = new Date().toISOString();
     const newPresentationId = `presentation_${Date.now()}`;
     const newPresentation = {
       title: newPresentationName,
-      description: "",
-      thumbnail: "",
+      description: newDescription,
+      thumbnail: newThumbnail,
       slides: [{ slide_id: `slide_${Date.now()}`, content: "", position: 1 }],
+      createdAt: currentTime,
     };
 
     const existingStore = presentations || {};
@@ -72,7 +77,6 @@ const Dashboard = () => {
     try {
       await apiCall("/store", "PUT", updatedData, token);
       setPresentations(updatedStore);
-      setNewPresentationName("");
       modalClose();
     } catch (error) {
       console.error("Failed to create presentation:", error.message);
@@ -82,14 +86,33 @@ const Dashboard = () => {
   return (
     <Box sx={{ padding: "20px" }}>
       <h1>Dashboard</h1>
-      <Button onClick={() => navigate("/logout")}>Logout</Button>
-      <Button
-        variant="contained"
-        onClick={modalOpen}
-        sx={{ textTransform: "none" }}
+
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "20px",
+          marginTop: "20px",
+          justifyContent: "space-between",
+          maxWidth: "1120px",
+        }}
       >
-        New Presentation
-      </Button>
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={() => navigate("/logout")}
+        >
+          Logout
+        </Button>
+        <Button
+          variant="contained"
+          onClick={modalOpen}
+          sx={{ textTransform: "none" }}
+        >
+          New Presentation
+        </Button>
+      </div>
+
       <div
         style={{
           display: "flex",
@@ -111,12 +134,26 @@ const Dashboard = () => {
       <Modal open={displayModal} onClose={modalClose}>
         <Box sx={{ ...modalStyle }}>
           <h2>Create New Presentation</h2>
-          <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "20px" }}
+          >
             <TextField
               label="Presentation Name"
               variant="filled"
               value={newPresentationName}
               onChange={(e) => setNewPresentationName(e.target.value)}
+            />
+            <TextField
+              label="Description"
+              variant="filled"
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+            />
+            <TextField
+              label="Thumbnail URL"
+              variant="filled"
+              value={newThumbnail}
+              onChange={(e) => setNewThumbnail(e.target.value)}
             />
             <Button
               variant="contained"
