@@ -16,7 +16,6 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import hljs from "highlight.js";
 import "highlight.js/styles/default.css";
-
 import ListSubheader from "@mui/material/ListSubheader";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -29,7 +28,6 @@ import SendIcon from "@mui/icons-material/Send";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import StarBorder from "@mui/icons-material/StarBorder";
-
 const EditPresentation = () => {
   const params = useParams();
   let presentationId = params.id;
@@ -41,22 +39,17 @@ const EditPresentation = () => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [deletePopup, setDeletePopup] = useState(false);
   const [showTitleEditModal, setShowTitleEditModal] = useState(false);
-
   const [elements, setElements] = useState([]); // store all elements of one slide
   const [elementModalDisplay, setElementModalDisplay] = useState(false); // manage element modal
   const [handlingElement, setHandlingElement] = useState(null); // manage currently editing element
-
   const [backgroundModalDisplay, setBackgroundModalDisplay] = useState(false); //background modal
   const [backgroundType, setBackgroundType] = useState("solid"); // background type
   const [backgroundColor, setBackgroundColor] = useState("#ffffff"); // bgc
   const [backgroundGradient, setBackgroundGradient] =
     useState("#ffffff,#000000"); // gradient
   const [backgroundImage, setBackgroundImage] = useState(""); // img
-
   const [open, setOpen] = React.useState(true);
-
   const token = localStorage.getItem("token");
-
   useEffect(() => {
     const getPresentation = async () => {
       try {
@@ -83,11 +76,9 @@ const EditPresentation = () => {
     };
     getPresentation();
   }, [presentationId, token, currentSlideIndex]);
-
   const handleClick = () => {
     setOpen(!open);
   };
-
   // open element modal
   const openNewElementModal = (type) => {
     const maxLayer = elements.reduce(
@@ -105,7 +96,6 @@ const EditPresentation = () => {
     }); //initial element setting
     setElementModalDisplay(true);
   };
-
   // handle element change
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -114,11 +104,9 @@ const EditPresentation = () => {
       [name]: type === "checkbox" ? checked : value,
     })); // store currently edited element
   };
-
   // save new and updated element
   const saveElement = () => {
     let updatedElement = { ...handlingElement };
-
     if (updatedElement.type === "video") {
       updatedElement.url = formatUrl(updatedElement.url);
       console.log(updatedElement.url);
@@ -130,25 +118,19 @@ const EditPresentation = () => {
           element.id === updatedElement.id ? updatedElement : element
         )
       : [...elements, { ...updatedElement, id: `element_${Date.now()}` }];
-
     console.log("updatedElements", updatedElements);
-
     setElements(updatedElements); // update elements in slide
     updateDatabase(updatedElements); // update database
-
     setElementModalDisplay(false);
   };
-
   // delete element
   const deleteElement = async (elementId) => {
     const updatedElements = elements.filter(
       (element) => element.id !== elementId
     );
-
     setElements(updatedElements); // update elements in slide
     updateDatabase(updatedElements); // update database
   };
-
   // update database
   const updateDatabase = async (newElements) => {
     const updatedPresentation = {
@@ -159,9 +141,7 @@ const EditPresentation = () => {
           : slide
       ),
     };
-
     setPresentation(updatedPresentation); // update elements in presentation
-
     try {
       const response = await apiCall("/store", "GET", {}, token);
       const updatedStore = {
@@ -174,7 +154,6 @@ const EditPresentation = () => {
       console.error("Failed to save presentation to database:", error.message);
     }
   };
-
   const formatUrl = (url) => {
     const videoIdMatch = url.split("v=")[1]?.split("&")[0];
     const videoId = videoIdMatch ? videoIdMatch : "";
@@ -186,16 +165,13 @@ const EditPresentation = () => {
       return url;
     }
   };
-
   // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   const handleBackgroundTypeChange = (e) => {
     setBackgroundType(e.target.value); //
   };
-
   const applyBackground = async () => {
     const updatedSlides = [...presentation.slides];
     const currentSlide = updatedSlides[currentSlideIndex];
-
     if (backgroundType === "solid") {
       currentSlide.background = { type: "solid", color: backgroundColor };
     } else if (backgroundType === "gradient") {
@@ -204,11 +180,9 @@ const EditPresentation = () => {
     } else if (backgroundType === "image") {
       currentSlide.background = { type: "image", url: backgroundImage };
     }
-
     const updatedPresentation = { ...presentation, slides: updatedSlides };
     setPresentation({ ...presentation, slides: updatedSlides });
     setBackgroundModalDisplay(false);
-
     try {
       await apiCall(
         "/store",
@@ -220,11 +194,9 @@ const EditPresentation = () => {
       console.error("Failed to update background in database:", error.message);
     }
   };
-
   const renderBackground = () => {
     const slide = presentation.slides[currentSlideIndex];
     if (!slide.background) return { backgroundColor: "#ffffff" };
-
     if (slide.background.type === "solid") {
       return { backgroundColor: slide.background.color };
     }
@@ -256,7 +228,6 @@ const EditPresentation = () => {
       console.error("Failed to delete presentation:", error.message);
     }
   };
-
   const saveTitleAndThumbnail = async () => {
     try {
       const updatedPresentation = {
@@ -276,20 +247,17 @@ const EditPresentation = () => {
       console.error("Failed to update title:", error.message);
     }
   };
-
   // Navigate Slides
   const goToPreviousSlide = () => {
     if (currentSlideIndex > 0) {
       setCurrentSlideIndex(currentSlideIndex - 1);
     }
   };
-
   const goToNextSlide = () => {
     if (currentSlideIndex < presentation.slides.length - 1) {
       setCurrentSlideIndex(currentSlideIndex + 1);
     }
   };
-
   // Add New Slide
   const addNewSlide = async () => {
     const newSlide = {
@@ -297,19 +265,16 @@ const EditPresentation = () => {
       content: "",
       position: presentation.slides.length + 1,
     };
-
     const updatedSlides = [...presentation.slides, newSlide].map(
       (slide, index) => ({
         ...slide,
         position: index + 1,
       })
     );
-
     const updatedPresentation = {
       ...presentation,
       slides: updatedSlides,
     };
-
     try {
       const response = await apiCall("/store", "GET", {}, token);
       const updatedStore = {
@@ -323,14 +288,12 @@ const EditPresentation = () => {
       console.error("Failed to add slide:", error.message);
     }
   };
-
   // Delete Slide
   const deleteSlide = async () => {
     if (presentation.slides.length === 1) {
       alert("Cannot delete the only slide. Delete the presentation instead.");
       return;
     }
-
     const updatedSlides = presentation.slides.filter(
       (slide, index) => index !== currentSlideIndex
     );
@@ -338,12 +301,10 @@ const EditPresentation = () => {
       ...slide,
       position: index + 1,
     }));
-
     const updatedPresentation = {
       ...presentation,
       slides: sortedSlides,
     };
-
     try {
       const response = await apiCall("/store", "GET", {}, token);
       const updatedStore = {
@@ -357,15 +318,12 @@ const EditPresentation = () => {
       console.error("Failed to delete slide:", error.message);
     }
   };
-
   if (!presentation) {
     return <div>No presentation...</div>;
   }
-
   const openPreview = () => {
     window.open(`/preview/${presentationId}`, "_blank");
   };
-
   return (
     <Box
       sx={{
@@ -389,31 +347,31 @@ const EditPresentation = () => {
           Back
         </Button>
       </Box>
-
       <h1>{presentation.title}</h1>
-
       <Box
         sx={{
           display: "flex",
           flexDirection: "row",
           gap: "20px",
           alignItems: "flex-start",
+          width: "100%",
         }}
       >
         <Box sx={{ width: "250px", bgcolor: "background.paper" }}>
           <List
-            sx={{ width: "100%", maxWidth: 250, bgcolor: "background.paper" }}
+            sx={{ minWidth: 200, bgcolor: "background.paper" }}
             component="nav"
             aria-labelledby="nested-list-subheader"
             subheader={
-              <ListSubheader component="div" id="nested-list-subheader">
-                Tools list
-              </ListSubheader>
+              <ListSubheader
+                component="div"
+                id="nested-list-subheader"
+              ></ListSubheader>
             }
           >
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <Button variant="text" onClick={() => setDeletePopup(true)}>
-                Delete Presentation
+              <Button onClick={openPreview} variant="contained" sx={{ mt: 2 }}>
+                Preview
               </Button>
               <Button
                 variant="text"
@@ -429,12 +387,10 @@ const EditPresentation = () => {
                 Change Background
               </Button>
             </Box>
-
             <ListItemButton onClick={handleClick}>
               <ListItemText primary="Add elements" />
               {open ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
-
             <Collapse in={open} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 {/* add elements  */}
@@ -472,23 +428,147 @@ const EditPresentation = () => {
                   </Button>
                 </Box>
               </List>
-            </Collapse>
-
-            <ListItemButton>
-              <ListItemText primary="Sent mail" />
-            </ListItemButton>
-
-            <ListItemButton>
-              <ListItemText primary="Drafts" />
-            </ListItemButton>
+            </Collapse>{" "}
           </List>
-
-          <Button onClick={openPreview} variant="contained" sx={{ mt: 2 }}>
-            Preview
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={() => setDeletePopup(true)}
+          >
+            Delete Presentation
           </Button>
         </Box>
+        <Box>
+          {/* render element  */}
+          <Box sx={{ ...slideBox, ...renderBackground() }}>
+            {elements
+              .slice()
+              .sort((a, b) => a.layer - b.layer)
+              .map((element) => (
+                <Box
+                  key={element.id}
+                  sx={{
+                    position: "absolute",
+                    left: `${element.x}%`,
+                    top: `${element.y}%`,
+                    width: `${element.width}%`,
+                    height: `${element.height}%`,
+                    fontFamily: element.fontFamily || "inherit",
+                    border: "1px solid grey",
+                    padding: "5px",
+                    margin: "5px",
+                    zIndex: element.layer,
+                  }}
+                  // double click edit element
+                  onDoubleClick={() => {
+                    setHandlingElement(element);
+                    setElementModalDisplay(true);
+                  }}
+                  // right click delete element
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    deleteElement(element.id);
+                  }}
+                >
+                  {/* render different element */}
+                  {/* text */}
+                  {element.type === "text" && (
+                    <div
+                      style={{
+                        fontSize: `${element.fontSize}em`,
+                        color: element.color,
+                        overflow: "hidden",
+                        whiteSpace: "normal",
+                        maxHeight: "100%",
+                      }}
+                    >
+                      {element.text}
+                    </div>
+                  )}
+                  {/* image */}
+                  {element.type === "image" && (
+                    <img
+                      src={element.url}
+                      alt={element.alt}
+                      style={{ width: "100%", height: "100%" }}
+                    />
+                  )}
+                  {/* video */}
+                  {element.type === "video" && (
+                    <Box
+                      onDoubleClick={() => {
+                        setHandlingElement(element);
+                        setElementModalDisplay(true);
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "100%",
+                        height: "100%",
+                        pointerEvents: "auto",
+                      }}
+                    >
+                      <iframe
+                        src={`${element.url}${
+                          element.autoPlay ? "?autoplay=1" : ""
+                        }`}
+                        title="YouTube video"
+                        width="100%"
+                        height="100%"
+                        allow="autoplay; encrypted-media"
+                        allowFullScreen
+                        style={{
+                          zIndex: 10,
+                          position: "relative",
+                          pointerEvents: "auto",
+                        }}
+                      />
+                    </Box>
+                  )}
+                  {element.type === "code" && element.code && (
+                    <pre
+                      style={{
+                        fontSize: `${element.fontSize}em`,
+                        whiteSpace: "pre-wrap",
+                        overflow: "hidden",
+                        maxHeight: "100%",
+                        margin: 0,
+                      }}
+                      dangerouslySetInnerHTML={{
+                        __html: element.code
+                          ? hljs.highlightAuto(element.code).value
+                          : "",
+                      }}
+                    ></pre>
+                  )}
+                </Box>
+              ))}
+            <Box sx={{ ...slideNumberBox }}>{currentSlideIndex + 1}</Box>
+          </Box>
+          <Box
+            sx={{ display: "flex", alignItems: "center", marginTop: "20px" }}
+          >
+            <IconButton
+              onClick={goToPreviousSlide}
+              disabled={currentSlideIndex === 0}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <span>
+              Slide {currentSlideIndex + 1} of {presentation.slides.length}
+            </span>
+            <IconButton
+              onClick={goToNextSlide}
+              disabled={currentSlideIndex === presentation.slides.length - 1}
+            >
+              <ArrowForwardIcon />
+            </IconButton>
+            <Button onClick={addNewSlide}>Add Slide</Button>
+            <Button onClick={deleteSlide}>Delete Slide</Button>
+          </Box>
+        </Box>
       </Box>
-
       {/* edit elements modal */}
       <Modal
         open={elementModalDisplay}
@@ -496,7 +576,6 @@ const EditPresentation = () => {
       >
         <Box sx={{ ...modalStyle }}>
           <h2>Edit {handlingElement?.type} Properties</h2>
-
           {/* x and y */}
           <TextField
             label="X Position (%)"
@@ -524,9 +603,7 @@ const EditPresentation = () => {
             sx={{ mt: 2 }}
             helperText="Higher layer values will appear on top"
           />
-
           {/* different type*/}
-
           {/* text */}
           {handlingElement?.type === "text" && (
             <>
@@ -584,7 +661,6 @@ const EditPresentation = () => {
               </FormControl>
             </>
           )}
-
           {/* image */}
           {handlingElement?.type === "image" && (
             <>
@@ -699,7 +775,6 @@ const EditPresentation = () => {
               />
             </>
           )}
-
           {/* save button */}
           <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
             <Button onClick={saveElement} variant="contained">
@@ -708,7 +783,6 @@ const EditPresentation = () => {
           </Box>
         </Box>
       </Modal>
-
       {/* bgc modal*/}
       <Modal
         open={backgroundModalDisplay}
@@ -716,7 +790,6 @@ const EditPresentation = () => {
       >
         <Box sx={{ ...modalStyle }}>
           <h2>Choose Background</h2>
-
           {/* select */}
           <FormControl fullWidth>
             <InputLabel>Background Type</InputLabel>
@@ -730,7 +803,6 @@ const EditPresentation = () => {
               <MenuItem value="image">Image</MenuItem>
             </Select>
           </FormControl>
-
           {/* different type with different input */}
           {backgroundType === "solid" && (
             <TextField
@@ -742,7 +814,6 @@ const EditPresentation = () => {
               sx={{ mt: 2 }}
             />
           )}
-
           {backgroundType === "gradient" && (
             <TextField
               label="Gradient Colors (comma-separated)"
@@ -753,7 +824,6 @@ const EditPresentation = () => {
               sx={{ mt: 2 }}
             />
           )}
-
           {backgroundType === "image" && (
             <TextField
               label="Image URL"
@@ -764,7 +834,6 @@ const EditPresentation = () => {
               sx={{ mt: 2 }}
             />
           )}
-
           {/* apply backgroundType */}
           <Button
             variant="contained"
@@ -776,29 +845,7 @@ const EditPresentation = () => {
           </Button>
         </Box>
       </Modal>
-
       {/* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */}
-
-      <Box sx={{ display: "flex", alignItems: "center", marginTop: "20px" }}>
-        <IconButton
-          onClick={goToPreviousSlide}
-          disabled={currentSlideIndex === 0}
-        >
-          <ArrowBackIcon />
-        </IconButton>
-        <span>
-          Slide {currentSlideIndex + 1} of {presentation.slides.length}
-        </span>
-        <IconButton
-          onClick={goToNextSlide}
-          disabled={currentSlideIndex === presentation.slides.length - 1}
-        >
-          <ArrowForwardIcon />
-        </IconButton>
-        <Button onClick={addNewSlide}>Add Slide</Button>
-        <Button onClick={deleteSlide}>Delete Slide</Button>
-      </Box>
-
       <Modal open={deletePopup} onClose={() => setDeletePopup(false)}>
         <Box sx={{ ...modalStyle }}>
           <h2>Are you sure?</h2>
@@ -806,7 +853,6 @@ const EditPresentation = () => {
           <Button onClick={() => setDeletePopup(false)}>No</Button>
         </Box>
       </Modal>
-
       <Modal
         open={showTitleEditModal}
         onClose={() => setShowTitleEditModal(false)}
@@ -830,16 +876,27 @@ const EditPresentation = () => {
     </Box>
   );
 };
-
 const slideBox = {
   position: "relative",
-  maxWidth: "1000px",
+  maxWidth: "100%",
   height: "400px",
   border: "1px solid #ddd",
   marginTop: "20px",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
+  padding: "10px",
+  "@media (min-width: 700px)": {
+    width: "700px",
+    height: "400px",
+    marginTop: "10px",
+  },
+  "@media (mim-width: 400px)": {
+    height: "250px",
+    maxWidth: "100%",
+    padding: "5px",
+    fontSize: "0.9em",
+  },
 };
 const slideNumberBox = {
   position: "absolute",
@@ -866,5 +923,4 @@ const modalStyle = {
   boxShadow: 24,
   p: 4,
 };
-
 export default EditPresentation;
