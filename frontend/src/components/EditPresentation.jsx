@@ -28,11 +28,12 @@ const EditPresentation = () => {
   let presentationId = params.id;
   const navigate = useNavigate();
   const [presentation, setPresentation] = useState(null);
+  const [loading, setLoading] = useState(true);
   const location = useLocation();
   const [title, setTitle] = useState("");
   const [thumbnail, setThumbnail] = useState("");
   const [customThumbnailURL, setCustomThumbnailURL] = useState("");
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(null);
   const [deletePopup, setDeletePopup] = useState(false);
   const [showTitleEditModal, setShowTitleEditModal] = useState(false);
   const [elements, setElements] = useState([]); // store all elements of one slide
@@ -63,19 +64,25 @@ const EditPresentation = () => {
             "slide"
           );
           setCurrentSlideIndex(urlSlideIndex ? parseInt(urlSlideIndex) : 0);
+          const initialSlideIndex = urlSlideIndex ? parseInt(urlSlideIndex) : 0;
+          setCurrentSlideIndex(initialSlideIndex);
           setElements(currentPres.slides[currentSlideIndex]?.elements || []);
         } else {
           setError("Presentation not found");
         }
       } catch (error) {
         setError("Failed to get presentation:", error.message);
+      } finally {
+        setLoading(false);
       }
     };
     getPresentation();
-  }, [presentationId, token, location.search]);
+  }, [presentationId, token, location.search, currentSlideIndex]);
+
   const handleClick = () => {
     setOpen(!open);
   };
+
   // open element modal
   const openNewElementModal = (type) => {
     const maxLayer = elements.reduce(
@@ -342,6 +349,10 @@ const EditPresentation = () => {
       setError("Failed to delete slide:", error.message);
     }
   };
+  if (loading || currentSlideIndex === null) {
+    return <div>Loading...</div>;
+  }
+
   if (!presentation) {
     return <div>No presentation...</div>;
   }
@@ -590,7 +601,15 @@ const EditPresentation = () => {
               onClick={goToPreviousSlide}
               disabled={currentSlideIndex === 0}
             >
-              <ArrowBackIcon />
+              <ArrowBackIcon
+                sx={{
+                  color: "white",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  "&:hover": {
+                    backgroundColor: "rgba(0, 0, 0, 0.7)",
+                  },
+                }}
+              />
             </IconButton>
             <span>
               Slide {currentSlideIndex + 1} of {presentation.slides.length}
@@ -599,7 +618,15 @@ const EditPresentation = () => {
               onClick={goToNextSlide}
               disabled={currentSlideIndex === presentation.slides.length - 1}
             >
-              <ArrowForwardIcon />
+              <ArrowForwardIcon
+                sx={{
+                  color: "white",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  "&:hover": {
+                    backgroundColor: "rgba(0, 0, 0, 0.7)",
+                  },
+                }}
+              />
             </IconButton>
             <Button onClick={addNewSlide}>Add Slide</Button>
             <Button onClick={deleteSlide}>Delete Slide</Button>
@@ -954,6 +981,11 @@ const slideBox = {
     height: "400px",
     marginTop: "10px",
   },
+  "@media (max-width: 700px)": {
+    height: "300px",
+    padding: "8px",
+    fontSize: "0.9em",
+  },
   "@media (mim-width: 400px)": {
     height: "250px",
     maxWidth: "100%",
@@ -974,19 +1006,29 @@ const slideNumberBox = {
   color: "black",
   border: "1px solid black",
   borderRadius: "5px",
-  backgroundColor: "rgba(255, 255, 255, 0.8)",
 };
+
 const modalStyle = {
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: "80vw",
+  maxWidth: "400px",
+  maxHeight: "80vh",
   bgcolor: "background.paper",
   boxShadow: 24,
-  p: 4,
+  p: { xs: 2, md: 4 },
+  overflowY: "auto",
   display: "flex",
   flexDirection: "column",
   gap: 1,
+
+  "@media (max-width: 400px)": {
+    width: "80vw",
+    maxHeight: "60vh",
+    p: 1,
+  },
 };
+
 export default EditPresentation;

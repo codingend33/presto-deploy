@@ -1,5 +1,3 @@
-// src/api.js
-
 const baseURL = "http://localhost:5005";
 
 const apiCall = async (path, method, data = {}, token = "") => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import apiCall from "../api";
 import { Box, IconButton } from "@mui/material";
@@ -161,6 +161,11 @@ const PreviewViewing = () => {
         overflow: "hidden",
         position: "relative",
         ...backgroundStyle,
+      }}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "ArrowLeft") goToPreviousSlide();
+        if (e.key === "ArrowRight") goToNextSlide();
       }}
     >
       <Box

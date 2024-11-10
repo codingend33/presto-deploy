@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiCall from "../api";
 import { TextField, Button, Box, Modal } from "@mui/material";
@@ -13,7 +13,6 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("email");
 
   useEffect(() => {
     const getPresentations = async () => {
