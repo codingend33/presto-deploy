@@ -22,6 +22,14 @@ import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import HomeIcon from "@mui/icons-material/Home";
+import TextFieldsIcon from "@mui/icons-material/TextFields";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import OndemandVideoIcon from "@mui/icons-material/OndemandVideo";
+import CodeIcon from "@mui/icons-material/Code";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 const EditPresentation = () => {
   const params = useParams();
@@ -373,21 +381,29 @@ const EditPresentation = () => {
       <Box display="flex" gap="10px">
         <Button
           variant="outlined"
+          color="primary"
+          startIcon={<HomeIcon />}
+          onClick={() => navigate("/dashboard")}
+        >
+          Back
+        </Button>
+        <Button
+          variant="outlined"
           color="error"
           onClick={() => navigate("/logout")}
+          startIcon={<LogoutIcon />}
         >
           Logout
         </Button>
-        <Button variant="outlined" onClick={() => navigate("/dashboard")}>
-          Back
-        </Button>
       </Box>
-      <h1>{presentation.title}</h1>
+      <h1 style={{ borderLeft: "4px solid #1976d2", paddingLeft: "10px" }}>
+        {presentation.title}
+      </h1>
       <Box
         sx={{
           display: "flex",
           flexDirection: "row",
-          gap: "20px",
+          gap: "30px",
           alignItems: "flex-start",
           width: "100%",
         }}
@@ -404,12 +420,19 @@ const EditPresentation = () => {
               ></ListSubheader>
             }
           >
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 1,
+              }}
+            >
               <Button
                 onClick={openPreview}
                 variant="contained"
                 sx={{ mt: 2 }}
                 color="success"
+                startIcon={<RemoveRedEyeIcon />}
               >
                 Preview
               </Button>
@@ -417,12 +440,14 @@ const EditPresentation = () => {
                 variant="text"
                 color="primary"
                 onClick={() => setShowTitleEditModal(true)}
+                sx={{ textTransform: "none" }}
               >
                 Edit Title & Thumbnail
               </Button>
               <Button
                 variant="text"
                 onClick={() => setBackgroundModalDisplay(true)}
+                sx={{ textTransform: "none" }}
               >
                 Change Background
               </Button>
@@ -430,7 +455,7 @@ const EditPresentation = () => {
             <Button
               variant="contained"
               onClick={handleClick}
-              sx={{ width: "100%" }}
+              sx={{ width: "100%", mt: 2 }}
             >
               <ListItemText primary="Add elements" />
               {open ? <ExpandLess /> : <ExpandMore />}
@@ -449,24 +474,32 @@ const EditPresentation = () => {
                   <Button
                     variant="text"
                     onClick={() => openNewElementModal("text")}
+                    sx={{ textTransform: "none" }}
+                    startIcon={<TextFieldsIcon />}
                   >
                     Add Text
                   </Button>
                   <Button
                     variant="text"
                     onClick={() => openNewElementModal("image")}
+                    sx={{ textTransform: "none" }}
+                    startIcon={<CameraAltIcon />}
                   >
                     Add Image
                   </Button>
                   <Button
                     variant="text"
                     onClick={() => openNewElementModal("video")}
+                    sx={{ textTransform: "none" }}
+                    startIcon={<OndemandVideoIcon />}
                   >
                     Add Video
                   </Button>
                   <Button
                     variant="text"
                     onClick={() => openNewElementModal("code")}
+                    sx={{ textTransform: "none" }}
+                    startIcon={<CodeIcon />}
                   >
                     Add Code
                   </Button>
@@ -480,6 +513,7 @@ const EditPresentation = () => {
                 variant="outlined"
                 color="error"
                 onClick={() => setDeletePopup(true)}
+                startIcon={<DeleteForeverIcon />}
               >
                 Delete Presentation
               </Button>
@@ -606,7 +640,7 @@ const EditPresentation = () => {
                   color: "white",
                   backgroundColor: "rgba(0, 0, 0, 0.5)",
                   "&:hover": {
-                    backgroundColor: "rgba(0, 0, 0, 0.7)",
+                    backgroundColor: "rgba(0, 0, 0, 0.8)",
                   },
                 }}
               />
@@ -623,7 +657,7 @@ const EditPresentation = () => {
                   color: "white",
                   backgroundColor: "rgba(0, 0, 0, 0.5)",
                   "&:hover": {
-                    backgroundColor: "rgba(0, 0, 0, 0.7)",
+                    backgroundColor: "rgba(0, 0, 0, 0.8)",
                   },
                 }}
               />

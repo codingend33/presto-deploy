@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import apiCall from "../api";
 import { TextField, Button, Box, Modal } from "@mui/material";
 import PresentationCard from "../components/PresentationCard";
+import LogoutIcon from "@mui/icons-material/Logout";
+import AddIcon from "@mui/icons-material/Add";
 
 const Dashboard = () => {
   const [presentations, setPresentations] = useState({});
@@ -84,7 +86,9 @@ const Dashboard = () => {
 
   return (
     <Box sx={{ padding: "20px" }}>
-      <h1>Dashboard</h1>
+      <h1 style={{ borderLeft: "4px solid #1976d2", paddingLeft: "10px" }}>
+        Dashboard
+      </h1>
 
       <div
         style={{
@@ -99,6 +103,7 @@ const Dashboard = () => {
         <Button
           variant="outlined"
           color="error"
+          startIcon={<LogoutIcon />}
           onClick={() => navigate("/logout")}
         >
           Logout
@@ -107,6 +112,7 @@ const Dashboard = () => {
           variant="contained"
           onClick={modalOpen}
           sx={{ textTransform: "none" }}
+          startIcon={<AddIcon />}
         >
           New Presentation
         </Button>

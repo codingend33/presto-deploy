@@ -189,10 +189,7 @@ const PreviewViewing = () => {
           alignItems: "center",
           gap: 2,
           color: "white",
-          backgroundColor: "rgba(0, 0, 0, 0.5)",
-          "&:hover": {
-            backgroundColor: "rgba(0, 0, 0, 0.7)",
-          },
+          backgroundColor: "rgba(0, 0, 0, 0.2)",
         }}
       >
         <IconButton
@@ -202,7 +199,7 @@ const PreviewViewing = () => {
             color: "white",
             backgroundColor: "rgba(0, 0, 0, 0.5)",
             "&:hover": {
-              backgroundColor: "rgba(0, 0, 0, 0.7)",
+              backgroundColor: "rgba(0, 0, 0, 0.8)",
             },
           }}
         >
@@ -218,7 +215,7 @@ const PreviewViewing = () => {
             color: "white",
             backgroundColor: "rgba(0, 0, 0, 0.5)",
             "&:hover": {
-              backgroundColor: "rgba(0, 0, 0, 0.7)",
+              backgroundColor: "rgba(0, 0, 0, 0.8)",
             },
           }}
         >

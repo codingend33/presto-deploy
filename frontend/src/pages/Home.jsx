@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
+import { Typography } from "@mui/material";
 
 const Home = () => {
   return (
@@ -14,8 +15,30 @@ const Home = () => {
         textAlign: "center",
       }}
     >
-      <h1>Welcome to Presto</h1>
-      <p style={{ marginTop: 0 }}>Your lightweight slides tool.</p>
+      <Typography
+        variant="h1"
+        sx={{
+          fontSize: "4em",
+          "&:hover": {
+            color: "rgba(0, 0, 0, 0.5)",
+          },
+        }}
+      >
+        Welcome to Presto
+      </Typography>
+      <Typography
+        sx={{
+          fontSize: "1.5em",
+          "&:hover": {
+            color: "rgba(0, 0, 0, 0.5)",
+          },
+          mt: 2,
+          mb: 2,
+        }}
+      >
+        Your lightweight slides tool
+      </Typography>
+
       <div style={{ display: "flex", justifyContent: "center" }}>
         <Stack spacing={2} direction="row">
           <Link to="/login">
