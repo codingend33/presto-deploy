@@ -1,20 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiCall from "../api";
-import { Box, TextField, Button, Typography } from "@mui/material";
+import { Box, TextField, Button, Alert, Snackbar } from "@mui/material";
+import { useErrorPopup } from "../components/ErrorPopup";
 
 const RegisterForm = () => {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const showError = useErrorPopup();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      showError("Passwords do not match", "error");
       return;
     }
     try {
@@ -23,11 +24,16 @@ const RegisterForm = () => {
         password,
         name,
       });
-      console.log(response);
-      navigate("/dashboard");
+      if (response.error) {
+        showError(response.error, "error");
+      }
+      const { token } = response;
+      if (token) {
+        localStorage.setItem("token", token);
+        navigate("/dashboard");
+      }
     } catch (error) {
-      console.error("Registration error:", error.message);
-      setError(error.message || "Registration failed");
+      showError(error.message || "Registration failed", "error");
     }
   };
 
@@ -80,7 +86,7 @@ const RegisterForm = () => {
           />
           <TextField
             required
-            id="confirm password"
+            id="confirm-password"
             label="Confirm Password"
             type="password"
             variant="filled"
@@ -93,7 +99,6 @@ const RegisterForm = () => {
           Register
         </Button>
       </Box>
-      {error && <Typography sx={{ color: "error.main" }}>{error}</Typography>}
     </form>
   );
 };

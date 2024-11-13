@@ -5,6 +5,7 @@ import { TextField, Button, Box, Modal, Typography } from "@mui/material";
 import PresentationCard from "../components/PresentationCard";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
+import { useErrorPopup } from "../components/ErrorPopup";
 
 const Dashboard = () => {
   const [presentations, setPresentations] = useState({});
@@ -13,34 +14,38 @@ const Dashboard = () => {
   const [newDescription, setNewDescription] = useState("");
   const [newThumbnail, setNewThumbnail] = useState("");
   const navigate = useNavigate();
-  const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
+  const showError = useErrorPopup();
 
   useEffect(() => {
     const getPresentations = async () => {
       try {
         const response = await apiCall("/store", "GET", {}, token);
+
         if (response && response.store) {
-          const updatedPresentations = Object.keys(response.store).reduce(
-            (acc, key) => {
-              const pres = response.store[key];
-              const thumbnail =
-                pres.thumbnail ||
-                (pres.slides && pres.slides.length > 0
-                  ? pres.slides[0].content
-                  : "");
-              acc[key] = { ...pres, thumbnail };
-              return acc;
-            },
-            {}
-          );
-          setPresentations(updatedPresentations);
+          if (Object.keys(response.store).length > 0) {
+            const updatedPresentations = Object.keys(response.store).reduce(
+              (acc, key) => {
+                const pres = response.store[key];
+                const thumbnail =
+                  pres.thumbnail ||
+                  (pres.slides && pres.slides.length > 0
+                    ? pres.slides[0].content
+                    : "");
+                acc[key] = { ...pres, thumbnail };
+                return acc;
+              },
+              {}
+            );
+            setPresentations(updatedPresentations);
+          } else {
+            setPresentations({});
+          }
         } else {
-          setError("No store available");
           setPresentations({});
         }
       } catch (error) {
-        setError("Failed to get presentations:", error.message);
+        showError("Failed to get presentations: " + error.message, "error");
       }
     };
     getPresentations();
@@ -80,7 +85,7 @@ const Dashboard = () => {
       setPresentations(updatedStore);
       modalClose();
     } catch (error) {
-      setError("Failed to create presentation:", error.message);
+      showError("Failed to create presentation: " + error.message, "error");
     }
   };
 
@@ -117,6 +122,7 @@ const Dashboard = () => {
           Logout
         </Button>
         <Button
+          id="new-presentation-button"
           variant="contained"
           onClick={modalOpen}
           sx={{ textTransform: "none" }}
@@ -149,6 +155,7 @@ const Dashboard = () => {
           <h2>Create New Presentation</h2>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
+              id="presentation-title-input"
               label="Presentation Name"
               variant="filled"
               value={newPresentationName}
@@ -167,6 +174,7 @@ const Dashboard = () => {
               onChange={(e) => setNewThumbnail(e.target.value)}
             />
             <Button
+              id="presentation-submit-button"
               variant="contained"
               onClick={createPresentation}
               sx={{ textTransform: "none" }}
@@ -176,7 +184,6 @@ const Dashboard = () => {
           </Box>
         </Box>
       </Modal>
-      {error && <Typography sx={{ color: "error.main" }}>{error}</Typography>}
     </Box>
   );
 };

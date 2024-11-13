@@ -31,6 +31,7 @@ import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CodeHighlighter from "./CodeHighlighter";
+import { useErrorPopup } from "../components/ErrorPopup";
 
 const EditPresentation = () => {
   const params = useParams();
@@ -55,8 +56,8 @@ const EditPresentation = () => {
     useState("#ffffff,#000000"); // gradient
   const [backgroundImage, setBackgroundImage] = useState(""); // img
   const [open, setOpen] = React.useState(true);
-  const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
+  const showError = useErrorPopup();
 
   useEffect(() => {
     const getPresentation = async () => {
@@ -77,10 +78,10 @@ const EditPresentation = () => {
           setCurrentSlideIndex(initialSlideIndex);
           setElements(currentPres.slides[currentSlideIndex]?.elements || []);
         } else {
-          setError("Presentation not found");
+          showError("Presentation not found", "warning");
         }
       } catch (error) {
-        setError("Failed to get presentation:", error.message);
+        showError("Failed to get presentation:" + error.message, "error");
       } finally {
         setLoading(false);
       }
@@ -164,7 +165,10 @@ const EditPresentation = () => {
       await apiCall("/store", "PUT", { store: updatedStore }, token);
       setPresentation(updatedPresentation);
     } catch (error) {
-      setError("Failed to save presentation to database:", error.message);
+      showError(
+        "Failed to save presentation to database:" + error.message,
+        "error"
+      );
     }
   };
   const formatUrl = (url) => {
@@ -174,7 +178,7 @@ const EditPresentation = () => {
     if (videoId) {
       return `https://www.youtube-nocookie.com/embed/${videoId}`;
     } else {
-      setError("Invalid YouTube URL");
+      showError("Invalid YouTube URL", "warning");
       return url;
     }
   };
@@ -204,7 +208,10 @@ const EditPresentation = () => {
         token
       );
     } catch (error) {
-      setError("Failed to update background in database:", error.message);
+      showError(
+        "Failed to update background in database:" + error.message,
+        "error"
+      );
     }
   };
   const renderBackground = () => {
@@ -238,7 +245,7 @@ const EditPresentation = () => {
       await apiCall("/store", "PUT", { store: getStore }, token);
       navigate("/dashboard");
     } catch (error) {
-      setError("Failed to delete presentation:", error.message);
+      showError("Failed to delete presentation:" + error.message, "error");
     }
   };
   const saveTitleAndThumbnail = async () => {
@@ -257,7 +264,7 @@ const EditPresentation = () => {
       setPresentation(updatedPresentation);
       setShowTitleEditModal(false);
     } catch (error) {
-      setError("Failed to update title:", error.message);
+      showError("Failed to update title:" + error.message, "error");
     }
   };
 
@@ -307,15 +314,16 @@ const EditPresentation = () => {
       setCurrentSlideIndex(newSlideIndex);
       navigate(`${location.pathname}?slide=${newSlideIndex}`);
     } catch (error) {
-      setError("Failed to add slide:", error.message);
+      showError("Failed to add slide:" + error.message, "error");
     }
   };
 
   // Delete Slide
   const deleteSlide = async () => {
     if (presentation.slides.length === 1) {
-      setError(
-        "Cannot delete the only slide. Delete the presentation instead."
+      showError(
+        "Cannot delete the only slide. Delete the presentation instead.",
+        "warning"
       );
       return;
     }
@@ -346,8 +354,9 @@ const EditPresentation = () => {
         newSlideIndex = currentSlideIndex;
       } else {
         newSlideIndex = -1;
-        setError(
-          "No slides available to show. You may delete the entire presentation instead."
+        showError(
+          "No slides available to show. You may delete the entire presentation instead.",
+          "error"
         );
         return;
       }
@@ -355,7 +364,7 @@ const EditPresentation = () => {
       setElements(updatedPresentation.slides[newSlideIndex]?.elements || []);
       navigate(`${location.pathname}?slide=${newSlideIndex}`);
     } catch (error) {
-      setError("Failed to delete slide:", error.message);
+      showError("Failed to delete slide:" + error.message, "error");
     }
   };
   if (loading) {
@@ -994,7 +1003,6 @@ const EditPresentation = () => {
           <Button onClick={saveTitleAndThumbnail}>Save</Button>
         </Box>
       </Modal>
-      {error && <Typography sx={{ color: "error.main" }}>{error}</Typography>}
     </Box>
   );
 };

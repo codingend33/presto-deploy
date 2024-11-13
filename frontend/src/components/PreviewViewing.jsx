@@ -5,6 +5,7 @@ import { Box, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import CodeHighlighter from "./CodeHighlighter";
+import { useErrorPopup } from "../components/ErrorPopup";
 
 const PreviewViewing = () => {
   const params = useParams();
@@ -13,9 +14,8 @@ const PreviewViewing = () => {
   const [presentation, setPresentation] = useState(null);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
-
+  const showError = useErrorPopup();
   useEffect(() => {
     const getPresentation = async () => {
       try {
@@ -24,10 +24,10 @@ const PreviewViewing = () => {
         if (response && response.store && response.store[presentationId]) {
           setPresentation(response.store[presentationId]);
         } else {
-          setError("Presentation not found");
+          showError("Presentation not found", "warning");
         }
       } catch (error) {
-        setError("Failed to load presentation:", error.message);
+        showError("Failed to load presentation:" + error.message, "error");
       } finally {
         setLoading(false);
       }
@@ -214,7 +214,6 @@ const PreviewViewing = () => {
           <ArrowForwardIcon />
         </IconButton>
       </Box>
-      {error && <Typography sx={{ color: "error.main" }}>{error}</Typography>}
     </Box>
   );
 };

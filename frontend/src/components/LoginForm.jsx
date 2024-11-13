@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiCall from "../api";
+import { useErrorPopup } from "../components/ErrorPopup";
 
 import { Box, TextField, Button, Typography } from "@mui/material";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const showError = useErrorPopup();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,13 +22,12 @@ const LoginForm = () => {
       if (token) {
         localStorage.setItem("token", token);
         localStorage.setItem("email", email);
-        console.log("User logged in:", response);
         navigate("/dashboard");
       } else {
-        setError("Login failed: No token received");
+        showError(response.error);
       }
     } catch (error) {
-      setError("Login failed");
+      showError(error.message || "Login failed", "error");
     }
   };
 
@@ -75,7 +75,6 @@ const LoginForm = () => {
         <Button variant="contained" type="submit">
           Login
         </Button>
-        {error && <Typography sx={{ color: "error.main" }}>{error}</Typography>}
       </Box>
     </form>
   );

@@ -1,4 +1,5 @@
 const baseURL = "http://localhost:5005";
+import { Box, TextField, Button, Typography } from "@mui/material";
 
 const apiCall = async (path, method, data = {}, token = "") => {
   const headers = {
@@ -24,12 +25,13 @@ const apiCall = async (path, method, data = {}, token = "") => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      console.error(`Status: ${response.status}\nError: ${data.error}`);
+      return { error: data.error || `Error ${response.status}` };
     }
     return data;
   } catch (error) {
-    console.error("Fetch error:", error);
-    throw error;
+    console.error(`Fetch error:${error.message}`);
+    return { error: `Fetch error: ${error.message}` };
   }
 };
 
