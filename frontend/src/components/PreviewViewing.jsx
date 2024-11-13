@@ -4,6 +4,7 @@ import apiCall from "../api";
 import { Box, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import CodeHighlighter from "./CodeHighlighter";
 
 const PreviewViewing = () => {
   const params = useParams();
@@ -118,19 +119,7 @@ const PreviewViewing = () => {
         );
       case "code":
         return (
-          <Box
-            component="pre"
-            key={element.id}
-            sx={{
-              ...elementStyle,
-              fontFamily: "monospace",
-              whiteSpace: "pre-wrap",
-              backgroundColor: "#f5f5f5",
-              padding: "10px",
-            }}
-          >
-            {element.code}
-          </Box>
+          <CodeHighlighter code={element.code} fontSize={element.fontSize} />
         );
       default:
         return null;

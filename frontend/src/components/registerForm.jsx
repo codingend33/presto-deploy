@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiCall from "../api";
-import { Box, TextField, Button } from "@mui/material";
+import { Box, TextField, Button, Typography } from "@mui/material";
 
 const RegisterForm = () => {
   const [email, setEmail] = useState("");
@@ -33,8 +33,8 @@ const RegisterForm = () => {
 
   return (
     <form onSubmit={handleRegister}>
-      <div
-        style={{
+      <Box
+        sx={{
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -92,8 +92,8 @@ const RegisterForm = () => {
         <Button variant="contained" type="submit" sx={{ mt: 2 }}>
           Register
         </Button>
-      </div>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      </Box>
+      {error && <Typography sx={{ color: "error.main" }}>{error}</Typography>}
     </form>
   );
 };

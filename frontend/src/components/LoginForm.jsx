@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiCall from "../api";
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
+
+import { Box, TextField, Button, Typography } from "@mui/material";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -29,15 +28,14 @@ const LoginForm = () => {
       }
     } catch (error) {
       setError("Login failed");
-      console.error("Login error:", error.message);
     }
   };
 
   return (
     // pressing enter key to login
     <form onSubmit={handleLogin}>
-      <div
-        style={{
+      <Box
+        sx={{
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -77,8 +75,8 @@ const LoginForm = () => {
         <Button variant="contained" type="submit">
           Login
         </Button>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-      </div>
+        {error && <Typography sx={{ color: "error.main" }}>{error}</Typography>}
+      </Box>
     </form>
   );
 };

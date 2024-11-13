@@ -37,10 +37,11 @@ const PresentationCard = ({ presentation, presentationId }) => {
           }}
         >
           {presentation.thumbnail && (
-            <img
+            <Box
+              component="img"
               src={presentation.thumbnail}
               alt="Presentation Thumbnail"
-              style={{ maxWidth: "100%", maxHeight: "100%" }}
+              sx={thumbnailStyle}
             />
           )}
         </CardMedia>
@@ -71,6 +72,11 @@ const PresentationCard = ({ presentation, presentationId }) => {
       </CardActionArea>
     </Card>
   );
+};
+
+const thumbnailStyle = {
+  maxWidth: "100%",
+  maxHeight: "100%",
 };
 
 const cardStyle = {

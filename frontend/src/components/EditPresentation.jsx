@@ -591,15 +591,17 @@ const EditPresentation = () => {
                         setElementModalDisplay(true);
                       }}
                       sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
                         width: "100%",
                         height: "100%",
-                        pointerEvents: "auto",
+                        maxWidth: "100%",
+                        maxHeight: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
                       }}
                     >
-                      <iframe
+                      <Box
+                        component="iframe"
                         src={`${element.url}${
                           element.autoPlay ? "?autoplay=1" : ""
                         }`}
@@ -609,8 +611,6 @@ const EditPresentation = () => {
                         sx={{
                           width: "100%",
                           height: "100%",
-                          zIndex: 10,
-                          position: "relative",
                           pointerEvents: "auto",
                         }}
                       />
@@ -1015,6 +1015,7 @@ const slideBox = {
   },
   "@media (max-width: 700px)": {
     height: "300px",
+    minWidth: "300px",
     padding: "8px",
     fontSize: "0.9em",
   },
