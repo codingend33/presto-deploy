@@ -73,7 +73,7 @@ const PreviewViewing = () => {
     if (!element || !element.type) {
       return null;
     }
-    const style = {
+    const elementStyle = {
       position: "absolute",
       left: `${element.x}%`,
       top: `${element.y}%`,
@@ -83,43 +83,46 @@ const PreviewViewing = () => {
     switch (element.type) {
       case "text":
         return (
-          <div
+          <Box
             key={element.id}
-            style={{
-              ...style,
+            sx={{
+              ...elementStyle,
               fontSize: `${element.fontSize * 10}px`,
               color: element.color || "black",
               fontFamily: element.fontFamily || "Arial",
             }}
           >
             {element.text}
-          </div>
+          </Box>
         );
       case "image":
         return (
-          <img
+          <Box
+            component="img"
             key={element.id}
             src={element.url}
             alt="Slide Image"
-            style={style}
+            sx={elementStyle}
           />
         );
       case "video":
         return (
-          <iframe
+          <Box
+            component="iframe"
             key={element.id}
             src={element.url}
             title="Video"
-            style={style}
+            sx={elementStyle}
             autoPlay={element.autoPlay ? "autoPlay" : undefined}
           />
         );
       case "code":
         return (
-          <pre
+          <Box
+            component="pre"
             key={element.id}
-            style={{
-              ...style,
+            sx={{
+              ...elementStyle,
               fontFamily: "monospace",
               whiteSpace: "pre-wrap",
               backgroundColor: "#f5f5f5",
@@ -127,7 +130,7 @@ const PreviewViewing = () => {
             }}
           >
             {element.code}
-          </pre>
+          </Box>
         );
       default:
         return null;
@@ -189,7 +192,7 @@ const PreviewViewing = () => {
           alignItems: "center",
           gap: 2,
           color: "white",
-          backgroundColor: "rgba(0, 0, 0, 0.2)",
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
         }}
       >
         <IconButton
@@ -222,7 +225,7 @@ const PreviewViewing = () => {
           <ArrowForwardIcon />
         </IconButton>
       </Box>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <Typography sx={{ color: "error.main" }}>{error}</Typography>}
     </Box>
   );
 };

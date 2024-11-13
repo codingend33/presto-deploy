@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
-import { Typography } from "@mui/material";
+import { Typography, Box } from "@mui/material";
 
 const Home = () => {
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -39,7 +39,7 @@ const Home = () => {
         Your lightweight slides tool
       </Typography>
 
-      <div style={{ display: "flex", justifyContent: "center" }}>
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
         <Stack spacing={2} direction="row">
           <Link to="/login">
             <Button variant="contained">Login</Button>
@@ -50,8 +50,8 @@ const Home = () => {
             </Button>
           </Link>
         </Stack>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 

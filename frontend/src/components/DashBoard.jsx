@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiCall from "../api";
-import { TextField, Button, Box, Modal } from "@mui/material";
+import { TextField, Button, Box, Modal, Typography } from "@mui/material";
 import PresentationCard from "../components/PresentationCard";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
@@ -86,18 +86,26 @@ const Dashboard = () => {
 
   return (
     <Box sx={{ padding: "20px" }}>
-      <h1 style={{ borderLeft: "4px solid #1976d2", paddingLeft: "10px" }}>
+      <Typography
+        variant="h1"
+        sx={{
+          borderLeft: 4,
+          borderColor: "primary.main",
+          paddingLeft: 2,
+          fontSize: "3em",
+          mt: 2,
+          mb: 3,
+        }}
+      >
         Dashboard
-      </h1>
+      </Typography>
 
-      <div
-        style={{
+      <Box
+        sx={{
           display: "flex",
           flexWrap: "wrap",
-          gap: "20px",
-          marginTop: "20px",
           justifyContent: "space-between",
-          maxWidth: "1120px",
+          maxWidth: "1130px",
         }}
       >
         <Button
@@ -116,14 +124,14 @@ const Dashboard = () => {
         >
           New Presentation
         </Button>
-      </div>
+      </Box>
 
-      <div
-        style={{
+      <Box
+        sx={{
           display: "flex",
           flexWrap: "wrap",
-          gap: "20px",
-          marginTop: "20px",
+          gap: 3,
+          mt: 3,
         }}
       >
         {presentations &&
@@ -134,14 +142,12 @@ const Dashboard = () => {
               presentationId={key}
             />
           ))}
-      </div>
+      </Box>
 
       <Modal open={displayModal} onClose={modalClose}>
         <Box sx={{ ...modalStyle }}>
           <h2>Create New Presentation</h2>
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "20px" }}
-          >
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
               label="Presentation Name"
               variant="filled"
@@ -167,10 +173,10 @@ const Dashboard = () => {
             >
               Create
             </Button>
-          </div>
+          </Box>
         </Box>
       </Modal>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <Typography sx={{ color: "error.main" }}>{error}</Typography>}
     </Box>
   );
 };

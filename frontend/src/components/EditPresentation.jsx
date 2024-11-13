@@ -11,10 +11,10 @@ import {
   FormControl,
   Select,
   MenuItem,
+  Typography,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import hljs from "highlight.js";
 import "highlight.js/styles/default.css";
 import ListSubheader from "@mui/material/ListSubheader";
 import List from "@mui/material/List";
@@ -30,6 +30,7 @@ import CodeIcon from "@mui/icons-material/Code";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import LogoutIcon from "@mui/icons-material/Logout";
+import CodeHighlighter from "./CodeHighlighter";
 
 const EditPresentation = () => {
   const params = useParams();
@@ -357,7 +358,7 @@ const EditPresentation = () => {
       setError("Failed to delete slide:", error.message);
     }
   };
-  if (loading || currentSlideIndex === null) {
+  if (loading) {
     return <div>Loading...</div>;
   }
 
@@ -396,9 +397,18 @@ const EditPresentation = () => {
           Logout
         </Button>
       </Box>
-      <h1 style={{ borderLeft: "4px solid #1976d2", paddingLeft: "10px" }}>
+      <Typography
+        variant="h1"
+        sx={{
+          borderLeft: 4,
+          borderColor: "primary.main",
+          paddingLeft: 2,
+          fontSize: "3em",
+          mt: 2,
+        }}
+      >
         {presentation.title}
-      </h1>
+      </Typography>
       <Box
         sx={{
           display: "flex",
@@ -555,24 +565,22 @@ const EditPresentation = () => {
                   {/* render different element */}
                   {/* text */}
                   {element.type === "text" && (
-                    <div
-                      style={{
+                    <Typography
+                      sx={{
                         fontSize: `${element.fontSize}em`,
                         color: element.color,
-                        overflow: "hidden",
-                        whiteSpace: "normal",
-                        maxHeight: "100%",
                       }}
                     >
                       {element.text}
-                    </div>
+                    </Typography>
                   )}
                   {/* image */}
                   {element.type === "image" && (
-                    <img
+                    <Box
+                      component="img"
                       src={element.url}
                       alt={element.alt}
-                      style={{ width: "100%", height: "100%" }}
+                      sx={{ width: "100%", height: "100%" }}
                     />
                   )}
                   {/* video */}
@@ -582,7 +590,7 @@ const EditPresentation = () => {
                         setHandlingElement(element);
                         setElementModalDisplay(true);
                       }}
-                      style={{
+                      sx={{
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -596,11 +604,11 @@ const EditPresentation = () => {
                           element.autoPlay ? "?autoplay=1" : ""
                         }`}
                         title="YouTube video"
-                        width="100%"
-                        height="100%"
                         allow="autoplay; encrypted-media"
                         allowFullScreen
-                        style={{
+                        sx={{
+                          width: "100%",
+                          height: "100%",
                           zIndex: 10,
                           position: "relative",
                           pointerEvents: "auto",
@@ -609,20 +617,10 @@ const EditPresentation = () => {
                     </Box>
                   )}
                   {element.type === "code" && element.code && (
-                    <pre
-                      style={{
-                        fontSize: `${element.fontSize}em`,
-                        whiteSpace: "pre-wrap",
-                        overflow: "hidden",
-                        maxHeight: "100%",
-                        margin: 0,
-                      }}
-                      dangerouslySetInnerHTML={{
-                        __html: element.code
-                          ? hljs.highlightAuto(element.code).value
-                          : "",
-                      }}
-                    ></pre>
+                    <CodeHighlighter
+                      code={element.code}
+                      fontSize={element.fontSize}
+                    />
                   )}
                 </Box>
               ))}
@@ -996,7 +994,7 @@ const EditPresentation = () => {
           <Button onClick={saveTitleAndThumbnail}>Save</Button>
         </Box>
       </Modal>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <Typography sx={{ color: "error.main" }}>{error}</Typography>}
     </Box>
   );
 };
