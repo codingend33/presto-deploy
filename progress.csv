@@ -18,7 +18,7 @@ section,completed
 2.4.3,YES
 2.4.4,YES
 2.5,YES
-2.6,YES
+2.6,PARTIAL
 
 
 FE_DEPLOYED_URL: https://z3399789-presto-be-deploy.vercel.app/

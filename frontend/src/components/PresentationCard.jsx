@@ -11,11 +11,11 @@ import {
 
 const PresentationCard = ({ presentation, presentationId }) => {
   const navigate = useNavigate();
-
+  // Handles click event to navigate to the presentation detail page
   const handleClick = () => {
     navigate(`/presentations/${presentationId}`);
   };
-
+  // Formats the date string to a readable format
   const formatDate = (dateString) => {
     if (!dateString) return "Unknown";
     const date = new Date(dateString);
@@ -42,6 +42,7 @@ const PresentationCard = ({ presentation, presentationId }) => {
               src={presentation.thumbnail}
               sx={thumbnailStyle}
               alt="Presentation Thumbnail"
+              // Set background to gray if thumbnail empty
               onError={(e) => {
                 e.target.style.display = "none";
                 e.target.parentNode.style.backgroundColor = "#e0e0e0";
@@ -68,8 +69,10 @@ const PresentationCard = ({ presentation, presentationId }) => {
             <Box display="flex" justifyContent="space-between">
               <span>
                 Slides: {presentation.slides ? presentation.slides.length : 0}
+                {/* Shows the number of slides */}
               </span>
-              <span>Created At: {formatDate(presentation.createdAt)}</span>
+              <span>Created At: {formatDate(presentation.createdAt)}</span>{" "}
+              {/* Shows formatted creation date */}
             </Box>
           </Typography>
         </CardContent>

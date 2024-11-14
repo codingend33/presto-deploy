@@ -23,6 +23,7 @@ const Dashboard = () => {
         const response = await apiCall("/store", "GET", {}, token);
 
         if (response && response.store) {
+          // Check if the response has data and map it to the presentations state
           if (Object.keys(response.store).length > 0) {
             const updatedPresentations = Object.keys(response.store).reduce(
               (acc, key) => {
@@ -58,7 +59,7 @@ const Dashboard = () => {
     setNewThumbnail("");
     setDisplayModal(false);
   };
-
+  // create a new presentation and update the presentations list
   const createPresentation = async () => {
     const currentTime = new Date().toISOString();
     const newPresentationId = `presentation_${Date.now()}`;

@@ -182,7 +182,7 @@ const EditPresentation = () => {
       return url;
     }
   };
-  // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
   const handleBackgroundTypeChange = (e) => {
     setBackgroundType(e.target.value); //
   };
@@ -235,7 +235,7 @@ const EditPresentation = () => {
       };
     }
   };
-  // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
   // Delete Presentation
   const deletePresentation = async () => {
     try {
@@ -981,7 +981,6 @@ const EditPresentation = () => {
           </Button>
         </Box>
       </Modal>
-      {/* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */}
       <Modal open={deletePopup} onClose={() => setDeletePopup(false)}>
         <Box sx={{ ...modalStyle }}>
           <h2>Are you sure?</h2>

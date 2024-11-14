@@ -41,6 +41,7 @@ const PreviewViewing = () => {
     getPresentation();
   }, [presentationId, location.search, token]);
 
+  // Updates the URL to reflect the current slide index whenever it changes
   useEffect(() => {
     if (presentation) {
       const newUrl = `/preview/${presentationId}?slide=${currentSlideIndex}`;
@@ -126,6 +127,7 @@ const PreviewViewing = () => {
     }
   };
 
+  // background style based on slide background type (color, gradient, or image)
   const backgroundStyle = currentSlide.background
     ? currentSlide.background.type === "gradient"
       ? {
