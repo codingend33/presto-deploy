@@ -162,12 +162,14 @@ const Dashboard = () => {
               onChange={(e) => setNewPresentationName(e.target.value)}
             />
             <TextField
+              id="presentation-description-input"
               label="Description"
               variant="filled"
               value={newDescription}
               onChange={(e) => setNewDescription(e.target.value)}
             />
             <TextField
+              id="presentation-thumbnail-URL"
               label="Thumbnail URL"
               variant="filled"
               value={newThumbnail}

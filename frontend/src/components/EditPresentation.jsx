@@ -633,12 +633,15 @@ const EditPresentation = () => {
                   )}
                 </Box>
               ))}
-            <Box sx={{ ...slideNumberBox }}>{currentSlideIndex + 1}</Box>
+            <Box id="current-slide-index" sx={{ ...slideNumberBox }}>
+              {currentSlideIndex + 1}
+            </Box>
           </Box>
           <Box
             sx={{ display: "flex", alignItems: "center", marginTop: "20px" }}
           >
             <IconButton
+              id="previous-slide-button"
               onClick={goToPreviousSlide}
               disabled={currentSlideIndex === 0}
             >
@@ -656,6 +659,7 @@ const EditPresentation = () => {
               Slide {currentSlideIndex + 1} of {presentation.slides.length}
             </span>
             <IconButton
+              id="next-slide-button"
               onClick={goToNextSlide}
               disabled={currentSlideIndex === presentation.slides.length - 1}
             >
@@ -669,7 +673,9 @@ const EditPresentation = () => {
                 }}
               />
             </IconButton>
-            <Button onClick={addNewSlide}>Add Slide</Button>
+            <Button id="add-slide-button" onClick={addNewSlide}>
+              Add Slide
+            </Button>
             <Button onClick={deleteSlide}>Delete Slide</Button>
           </Box>
         </Box>
@@ -989,18 +995,25 @@ const EditPresentation = () => {
       >
         <Box sx={{ ...modalStyle }}>
           <TextField
+            id="presentation-title-input"
             label="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             fullWidth
           />
           <TextField
+            id="thumbnail-url-input"
             label="Custom Thumbnail URL"
             value={customThumbnailURL || thumbnail}
             onChange={(e) => setCustomThumbnailURL(e.target.value)}
             fullWidth
           />
-          <Button onClick={saveTitleAndThumbnail}>Save</Button>
+          <Button
+            id="save-title-thumbnail-button"
+            onClick={saveTitleAndThumbnail}
+          >
+            Save
+          </Button>
         </Box>
       </Modal>
     </Box>
