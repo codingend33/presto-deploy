@@ -33,17 +33,21 @@ const PresentationCard = ({ presentation, presentationId }) => {
           component="div"
           sx={{
             ...cardMediaStyle,
-            bgcolor: presentation.thumbnail ? "transparent" : "#e0e0e0",
+            backgroundColor: presentation.thumbnail ? "transparent" : "#e0e0e0",
           }}
         >
-          {presentation.thumbnail && (
+          {presentation.thumbnail ? (
             <Box
               component="img"
               src={presentation.thumbnail}
-              alt="Presentation Thumbnail"
               sx={thumbnailStyle}
+              alt="Presentation Thumbnail"
+              onError={(e) => {
+                e.target.style.display = "none";
+                e.target.parentNode.style.backgroundColor = "#e0e0e0";
+              }}
             />
-          )}
+          ) : null}
         </CardMedia>
 
         <CardContent

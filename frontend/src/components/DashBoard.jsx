@@ -65,7 +65,7 @@ const Dashboard = () => {
     const newPresentation = {
       title: newPresentationName,
       description: newDescription,
-      thumbnail: newThumbnail,
+      thumbnail: newThumbnail || null,
       slides: [{ slide_id: `slide_${Date.now()}`, content: "", position: 1 }],
       createdAt: currentTime,
     };
