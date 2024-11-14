@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Box } from "@mui/material";
+import "highlight.js/styles/default.css";
 import hljs from "highlight.js";
 
 const CodeHighlighter = ({ code, fontSize }) => {
