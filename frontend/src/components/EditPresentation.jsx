@@ -31,6 +31,7 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CodeHighlighter from "./CodeHighlighter";
 import { useErrorPopup } from "../components/ErrorPopup";
+import BackgroundSettings from "../components/BackgroundSettings";
 
 const EditPresentation = () => {
   const params = useParams();
@@ -49,11 +50,6 @@ const EditPresentation = () => {
   const [elementModalDisplay, setElementModalDisplay] = useState(false); // manage element modal
   const [handlingElement, setHandlingElement] = useState(null); // manage currently editing element
   const [backgroundModalDisplay, setBackgroundModalDisplay] = useState(false); //background modal
-  const [backgroundType, setBackgroundType] = useState("solid"); // background type
-  const [backgroundColor, setBackgroundColor] = useState("#ffffff"); // bgc
-  const [backgroundGradient, setBackgroundGradient] =
-    useState("#ffffff,#000000"); // gradient
-  const [backgroundImage, setBackgroundImage] = useState(""); // img
   const [open, setOpen] = React.useState(true);
   const token = localStorage.getItem("token");
   const showError = useErrorPopup();
@@ -62,7 +58,6 @@ const EditPresentation = () => {
     const getPresentation = async () => {
       try {
         const response = await apiCall("/store", "GET", {}, token);
-        console.log("edit界面 response:", response);
         const userStore = response.store;
         if (userStore && userStore[presentationId]) {
           const currentPres = userStore[presentationId];
@@ -73,8 +68,6 @@ const EditPresentation = () => {
             "slide"
           );
           setCurrentSlideIndex(urlSlideIndex ? parseInt(urlSlideIndex) : 0);
-          const initialSlideIndex = urlSlideIndex ? parseInt(urlSlideIndex) : 0;
-          setCurrentSlideIndex(initialSlideIndex);
           setElements(currentPres.slides[currentSlideIndex]?.elements || []);
         } else {
           showError("Presentation not found", "warning");
@@ -122,7 +115,6 @@ const EditPresentation = () => {
     let updatedElement = { ...handlingElement };
     if (updatedElement.type === "video") {
       updatedElement.url = formatUrl(updatedElement.url);
-      console.log(updatedElement.url);
     }
     // if current element is exist, find it in elements list and update it.
     // else:add new element into list.
@@ -131,7 +123,6 @@ const EditPresentation = () => {
           element.id === updatedElement.id ? updatedElement : element
         )
       : [...elements, { ...updatedElement, id: `element_${Date.now()}` }];
-    console.log("updatedElements", updatedElements);
     setElements(updatedElements); // update elements in slide
     updateDatabase(updatedElements); // update database
     setElementModalDisplay(false);
@@ -173,46 +164,13 @@ const EditPresentation = () => {
   const formatUrl = (url) => {
     const videoIdMatch = url.split("v=")[1]?.split("&")[0];
     const videoId = videoIdMatch ? videoIdMatch : "";
-    console.log(videoId);
     if (videoId) {
       return `https://www.youtube-nocookie.com/embed/${videoId}`;
     } else {
-      showError("Invalid YouTube URL", "warning");
       return url;
     }
   };
 
-  const handleBackgroundTypeChange = (e) => {
-    setBackgroundType(e.target.value); //
-  };
-  const applyBackground = async () => {
-    const updatedSlides = [...presentation.slides];
-    const currentSlide = updatedSlides[currentSlideIndex];
-    if (backgroundType === "solid") {
-      currentSlide.background = { type: "solid", color: backgroundColor };
-    } else if (backgroundType === "gradient") {
-      const colors = backgroundGradient.split(",");
-      currentSlide.background = { type: "gradient", colors };
-    } else if (backgroundType === "image") {
-      currentSlide.background = { type: "image", url: backgroundImage };
-    }
-    const updatedPresentation = { ...presentation, slides: updatedSlides };
-    setPresentation({ ...presentation, slides: updatedSlides });
-    setBackgroundModalDisplay(false);
-    try {
-      await apiCall(
-        "/store",
-        "PUT",
-        { store: { [presentationId]: updatedPresentation } },
-        token
-      );
-    } catch (error) {
-      showError(
-        "Failed to update background in database:" + error.message,
-        "error"
-      );
-    }
-  };
   const renderBackground = () => {
     const slide = presentation.slides[currentSlideIndex];
     if (!slide.background) return { backgroundColor: "#ffffff" };
@@ -387,6 +345,7 @@ const EditPresentation = () => {
         if (e.key === "ArrowRight") goToNextSlide();
       }}
     >
+      {/* Navigation buttons */}
       <Box display="flex" gap="10px">
         <Button
           variant="outlined"
@@ -405,6 +364,7 @@ const EditPresentation = () => {
           Logout
         </Button>
       </Box>
+      {/* Title */}
       <Typography
         variant="h1"
         sx={{
@@ -417,6 +377,7 @@ const EditPresentation = () => {
       >
         {presentation.title}
       </Typography>
+      {/* Left sidebar with options */}
       <Box
         sx={{
           display: "flex",
@@ -680,6 +641,14 @@ const EditPresentation = () => {
         </Box>
       </Box>
       {/* edit elements modal */}
+      <BackgroundSettings
+        open={backgroundModalDisplay}
+        onClose={() => setBackgroundModalDisplay(false)}
+        presentation={presentation}
+        setPresentation={setPresentation}
+        currentSlideIndex={currentSlideIndex}
+        presentationId={presentationId}
+      />
       <Modal
         open={elementModalDisplay}
         onClose={() => setElementModalDisplay(false)}
@@ -713,7 +682,6 @@ const EditPresentation = () => {
             sx={{ mt: 2 }}
             helperText="Higher layer values will appear on top"
           />
-
           {/* different type*/}
           {/* text */}
           {handlingElement?.type === "text" && (
@@ -916,68 +884,6 @@ const EditPresentation = () => {
               Save
             </Button>
           </Box>
-        </Box>
-      </Modal>
-      {/* bgc modal*/}
-      <Modal
-        open={backgroundModalDisplay}
-        onClose={() => setBackgroundModalDisplay(false)}
-      >
-        <Box sx={{ ...modalStyle }}>
-          <h2>Choose Background</h2>
-          {/* select */}
-          <FormControl fullWidth>
-            <InputLabel>Background Type</InputLabel>
-            <Select
-              value={backgroundType}
-              onChange={handleBackgroundTypeChange}
-              name="backgroundType"
-            >
-              <MenuItem value="solid">Solid Color</MenuItem>
-              <MenuItem value="gradient">Gradient</MenuItem>
-              <MenuItem value="image">Image</MenuItem>
-            </Select>
-          </FormControl>
-          {/* different type with different input */}
-          {backgroundType === "solid" && (
-            <TextField
-              label="Background Color"
-              type="color"
-              value={backgroundColor}
-              onChange={(e) => setBackgroundColor(e.target.value)}
-              fullWidth
-              sx={{ mt: 2 }}
-            />
-          )}
-          {backgroundType === "gradient" && (
-            <TextField
-              label="Gradient Colors (comma-separated)"
-              placeholder="#ffffff,#000000"
-              value={backgroundGradient}
-              onChange={(e) => setBackgroundGradient(e.target.value)}
-              fullWidth
-              sx={{ mt: 2 }}
-            />
-          )}
-          {backgroundType === "image" && (
-            <TextField
-              label="Image URL"
-              placeholder="https://example.com/image.jpg"
-              value={backgroundImage}
-              onChange={(e) => setBackgroundImage(e.target.value)}
-              fullWidth
-              sx={{ mt: 2 }}
-            />
-          )}
-          {/* apply backgroundType */}
-          <Button
-            variant="contained"
-            onClick={applyBackground}
-            sx={{ mt: 2 }}
-            fullWidth
-          >
-            Apply
-          </Button>
         </Box>
       </Modal>
       <Modal open={deletePopup} onClose={() => setDeletePopup(false)}>
