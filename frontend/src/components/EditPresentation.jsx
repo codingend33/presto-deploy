@@ -122,8 +122,8 @@ const EditPresentation = () => {
     // else:add new element into list.
     const updatedElements = handlingElement.id
       ? elements.map((element) =>
-          element.id === updatedElement.id ? updatedElement : element
-        )
+        element.id === updatedElement.id ? updatedElement : element
+      )
       : [...elements, { ...updatedElement, id: `element_${Date.now()}` }];
     setElements(updatedElements); // update elements in slide
     updateDatabase(updatedElements); // update database

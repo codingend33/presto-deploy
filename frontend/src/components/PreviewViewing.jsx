@@ -83,47 +83,47 @@ const PreviewViewing = () => {
       height: `${element.height}%`,
     };
     switch (element.type) {
-      case "text":
-        return (
-          <Box
-            key={element.id}
-            sx={{
-              ...elementStyle,
-              fontSize: `${element.fontSize * 10}px`,
-              color: element.color || "black",
-              fontFamily: element.fontFamily || "Arial",
-            }}
-          >
-            {element.text}
-          </Box>
-        );
-      case "image":
-        return (
-          <Box
-            component="img"
-            key={element.id}
-            src={element.url}
-            alt="Slide Image"
-            sx={elementStyle}
-          />
-        );
-      case "video":
-        return (
-          <Box
-            component="iframe"
-            key={element.id}
-            src={element.url}
-            title="Video"
-            sx={elementStyle}
-            autoPlay={element.autoPlay ? "autoPlay" : undefined}
-          />
-        );
-      case "code":
-        return (
-          <CodeHighlighter code={element.code} fontSize={element.fontSize} />
-        );
-      default:
-        return null;
+    case "text":
+      return (
+        <Box
+          key={element.id}
+          sx={{
+            ...elementStyle,
+            fontSize: `${element.fontSize * 10}px`,
+            color: element.color || "black",
+            fontFamily: element.fontFamily || "Arial",
+          }}
+        >
+          {element.text}
+        </Box>
+      );
+    case "image":
+      return (
+        <Box
+          component="img"
+          key={element.id}
+          src={element.url}
+          alt="Slide Image"
+          sx={elementStyle}
+        />
+      );
+    case "video":
+      return (
+        <Box
+          component="iframe"
+          key={element.id}
+          src={element.url}
+          title="Video"
+          sx={elementStyle}
+          autoPlay={element.autoPlay ? "autoPlay" : undefined}
+        />
+      );
+    case "code":
+      return (
+        <CodeHighlighter code={element.code} fontSize={element.fontSize} />
+      );
+    default:
+      return null;
     }
   };
 
@@ -131,16 +131,16 @@ const PreviewViewing = () => {
   const backgroundStyle = currentSlide.background
     ? currentSlide.background.type === "gradient"
       ? {
-          background: `linear-gradient(${currentSlide.background.colors.join(
-            ", "
-          )})`,
-        }
+        background: `linear-gradient(${currentSlide.background.colors.join(
+          ", "
+        )})`,
+      }
       : currentSlide.background.type === "image"
-      ? {
+        ? {
           backgroundImage: `url(${currentSlide.background.url})`,
           backgroundSize: "cover",
         }
-      : { backgroundColor: currentSlide.background.color || "#ffffff" }
+        : { backgroundColor: currentSlide.background.color || "#ffffff" }
     : { backgroundColor: "#ffffff" };
 
   return (

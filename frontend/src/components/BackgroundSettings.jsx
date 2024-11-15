@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import apiCall from "../api";
 import {
   Modal,
@@ -58,7 +58,7 @@ const BackgroundSettings = ({
         token
       );
     } catch (error) {
-      showError("Failed to update background:", "error");
+      showError("Failed to update background:" + error.message, "error");
     }
 
     onClose();
