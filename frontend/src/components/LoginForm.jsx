@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import apiCall from "../api";
 import { useErrorPopup } from "../components/ErrorPopup";
 
-import { Box, TextField, Button, Typography } from "@mui/material";
+import { Box, TextField, Button } from "@mui/material";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -24,9 +24,10 @@ const LoginForm = () => {
         localStorage.setItem("email", email);
         navigate("/dashboard");
       } else {
-        showError(response.error);
+        showError(response.error || "Unexpected error occurred", "error");
       }
     } catch (error) {
+      console.error(error);
       showError(error.message || "Login failed", "error");
     }
   };

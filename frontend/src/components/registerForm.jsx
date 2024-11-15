@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiCall from "../api";
-import { Box, TextField, Button, Alert, Snackbar } from "@mui/material";
+import { Box, TextField, Button } from "@mui/material";
 import { useErrorPopup } from "../components/ErrorPopup";
 
 const RegisterForm = () => {

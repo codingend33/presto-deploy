@@ -10,6 +10,7 @@ import {
   TextField,
   Button,
 } from "@mui/material";
+import { useErrorPopup } from "../components/ErrorPopup";
 
 const BackgroundSettings = ({
   open,
@@ -24,6 +25,8 @@ const BackgroundSettings = ({
   const [backgroundGradient, setBackgroundGradient] =
     useState("#ffffff,#000000");
   const [backgroundImage, setBackgroundImage] = useState("");
+  const showError = useErrorPopup();
+  const token = localStorage.getItem("token");
 
   const handleBackgroundTypeChange = (e) => {
     setBackgroundType(e.target.value);
@@ -46,11 +49,16 @@ const BackgroundSettings = ({
     setPresentation(updatedPresentation);
 
     try {
-      await apiCall("/store", "PUT", {
-        store: { [presentationId]: updatedPresentation },
-      });
+      await apiCall(
+        "/store",
+        "PUT",
+        {
+          store: { [presentationId]: updatedPresentation },
+        },
+        token
+      );
     } catch (error) {
-      console.error("Failed to update background:", error);
+      showError("Failed to update background:", "error");
     }
 
     onClose();

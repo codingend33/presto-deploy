@@ -166,7 +166,7 @@ const Dashboard = () => {
               id="presentation-description-input"
               label="Description"
               variant="filled"
-              value={newDescription}
+              value={newDescription || ""}
               onChange={(e) => setNewDescription(e.target.value)}
             />
             <TextField

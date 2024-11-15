@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 import LoginForm from "../components/LoginForm";
 import { BrowserRouter } from "react-router-dom";
@@ -6,6 +6,13 @@ import apiCall from "../api";
 
 vi.mock("../api", () => ({
   default: vi.fn(),
+}));
+
+// Create the showErrorMock before the tests
+const showErrorMock = vi.fn();
+
+vi.mock("../components/ErrorPopup", () => ({
+  useErrorPopup: vi.fn(() => showErrorMock),
 }));
 
 describe("LoginForm Component", () => {
@@ -30,7 +37,9 @@ describe("LoginForm Component", () => {
     fireEvent.change(passwordInput, { target: { value: "wrong-password" } });
     fireEvent.click(submitButton);
 
-    expect(await screen.findByText("Login failed")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(showErrorMock).toHaveBeenCalledWith("Login failed", "error");
+    });
   });
 
   it("renders email, password fields and login button", () => {
