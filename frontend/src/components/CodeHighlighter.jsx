@@ -19,8 +19,9 @@ const CodeHighlighter = ({ code, fontSize }) => {
         fontSize: `${fontSize}em`,
         whiteSpace: "pre-wrap",
         overflow: "hidden",
+        padding: 0,
+        margin: 0,
         maxHeight: "100%",
-        padding: "8px",
         backgroundColor: "#f5f5f5",
         borderRadius: "5px",
       }}
