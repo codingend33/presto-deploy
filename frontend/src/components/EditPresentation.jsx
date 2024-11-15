@@ -41,6 +41,7 @@ const EditPresentation = () => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [thumbnail, setThumbnail] = useState("");
   const [customThumbnailURL, setCustomThumbnailURL] = useState("");
   const [currentSlideIndex, setCurrentSlideIndex] = useState(null);
@@ -63,6 +64,7 @@ const EditPresentation = () => {
           const currentPres = userStore[presentationId];
           setPresentation(currentPres);
           setTitle(currentPres.title || "");
+          setDescription(currentPres.description || "");
           setThumbnail(currentPres.thumbnail || "");
           const urlSlideIndex = new URLSearchParams(location.search).get(
             "slide"
@@ -210,6 +212,7 @@ const EditPresentation = () => {
       const updatedPresentation = {
         ...presentation,
         title: title,
+        description: description,
         thumbnail: customThumbnailURL || thumbnail,
       };
       const response = await apiCall("/store", "GET", {}, token);
@@ -421,7 +424,7 @@ const EditPresentation = () => {
                 onClick={() => setShowTitleEditModal(true)}
                 sx={{ textTransform: "none" }}
               >
-                Edit Title & Thumbnail
+                Edit Title & Description &Thumbnail
               </Button>
               <Button
                 variant="text"
@@ -512,13 +515,15 @@ const EditPresentation = () => {
                     position: "absolute",
                     left: `${element.x}%`,
                     top: `${element.y}%`,
-                    width: `${element.width}%`,
-                    height: `${element.height}%`,
+                    width: `${element.width || 50}%`,
+                    height: `${element.height || 50}%`,
                     fontFamily: element.fontFamily || "inherit",
                     border: "1px solid grey",
                     padding: "10px",
-                    margin: "5px",
+                    margin: "10px",
                     zIndex: element.layer,
+                    overflow: "hidden",
+                    whiteSpace: "wrap",
                   }}
                   // double click edit element
                   onDoubleClick={() => {
@@ -655,33 +660,59 @@ const EditPresentation = () => {
       >
         <Box sx={{ ...modalStyle }}>
           <h2>Edit {handlingElement?.type} Properties</h2>
-          {/* x and y */}
-          <TextField
-            label="X Position (%)"
-            name="x"
-            value={handlingElement?.x || ""}
-            onChange={handleChange}
-            fullWidth
-            sx={{ mt: 2 }}
-          />
-          <TextField
-            label="Y Position (%)"
-            name="y"
-            value={handlingElement?.y || ""}
-            onChange={handleChange}
-            fullWidth
-            sx={{ mt: 2 }}
-          />
-          <TextField
-            label="Layer (z-index)"
-            name="layer"
-            type="number"
-            value={handlingElement?.layer || 1}
-            onChange={handleChange}
-            fullWidth
-            sx={{ mt: 2 }}
-            helperText="Higher layer values will appear on top"
-          />
+
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 2,
+              gridAutoRows: "auto",
+            }}
+          >
+            {/* x and y */}
+            <TextField
+              label="X Position (%)"
+              name="x"
+              value={handlingElement?.x || ""}
+              onChange={handleChange}
+              fullWidth
+              sx={{ mt: 2 }}
+            />
+            <TextField
+              label="Y Position (%)"
+              name="y"
+              value={handlingElement?.y || ""}
+              onChange={handleChange}
+              fullWidth
+              sx={{ mt: 2 }}
+            />
+            <TextField
+              label="Width (%)"
+              name="width"
+              value={handlingElement?.width || ""}
+              onChange={handleChange}
+              fullWidth
+              sx={{ mt: 2 }}
+            />
+            <TextField
+              label="Height (%)"
+              name="height"
+              value={handlingElement?.height || ""}
+              onChange={handleChange}
+              fullWidth
+              sx={{ mt: 2 }}
+            />
+            <TextField
+              label="Layer (z-index)"
+              name="layer"
+              type="number"
+              value={handlingElement?.layer || 1}
+              onChange={handleChange}
+              fullWidth
+              sx={{ mt: 2 }}
+              helperText="Higher layer values will appear on top"
+            />
+          </Box>
           {/* different type*/}
           {/* text */}
           {handlingElement?.type === "text" && (
@@ -692,14 +723,6 @@ const EditPresentation = () => {
                 gap: 2,
               }}
             >
-              <TextField
-                label="Text"
-                name="text"
-                value={handlingElement.text || ""}
-                onChange={handleChange}
-                fullWidth
-                sx={{ mt: 2 }}
-              />
               <TextField
                 label="Font Size (em)"
                 name="fontSize"
@@ -716,22 +739,6 @@ const EditPresentation = () => {
                 fullWidth
                 sx={{ mt: 2 }}
               />
-              <TextField
-                label="Width (%)"
-                name="width"
-                value={handlingElement.width || ""}
-                onChange={handleChange}
-                fullWidth
-                sx={{ mt: 2 }}
-              />
-              <TextField
-                label="Height (%)"
-                name="height"
-                value={handlingElement.height || ""}
-                onChange={handleChange}
-                fullWidth
-                sx={{ mt: 2 }}
-              />
               <FormControl fullWidth sx={{ mt: 2 }}>
                 <InputLabel>Font Family</InputLabel>
                 <Select
@@ -744,6 +751,16 @@ const EditPresentation = () => {
                   <MenuItem value="Times New Roman">Times New Roman</MenuItem>
                 </Select>
               </FormControl>
+              <TextField
+                label="Text"
+                name="text"
+                value={handlingElement.text || ""}
+                onChange={handleChange}
+                fullWidth
+                sx={{ mt: 2, gridColumn: "span 2" }}
+                multiline
+                rows={5}
+              />
             </Box>
           )}
           {/* image */}
@@ -771,30 +788,12 @@ const EditPresentation = () => {
                 fullWidth
                 sx={{ mt: 2 }}
               />
-              <TextField
-                label="Width (%)"
-                name="width"
-                value={handlingElement.width || ""}
-                onChange={handleChange}
-                fullWidth
-                sx={{ mt: 2 }}
-              />
-              <TextField
-                label="Height (%)"
-                name="height"
-                value={handlingElement.height || ""}
-                onChange={handleChange}
-                fullWidth
-                sx={{ mt: 2 }}
-              />
             </Box>
           )}
           {/* video */}
           {handlingElement?.type === "video" && (
             <Box
               sx={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
                 gap: 2,
               }}
             >
@@ -802,22 +801,6 @@ const EditPresentation = () => {
                 label="Video URL"
                 name="url"
                 value={handlingElement.url || ""}
-                onChange={handleChange}
-                fullWidth
-                sx={{ mt: 2 }}
-              />
-              <TextField
-                label="Width (%)"
-                name="width"
-                value={handlingElement.width || ""}
-                onChange={handleChange}
-                fullWidth
-                sx={{ mt: 2 }}
-              />
-              <TextField
-                label="Height (%)"
-                name="height"
-                value={handlingElement.height || ""}
                 onChange={handleChange}
                 fullWidth
                 sx={{ mt: 2 }}
@@ -840,18 +823,9 @@ const EditPresentation = () => {
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
                 gap: 2,
+                gridAutoRows: "auto",
               }}
             >
-              <TextField
-                label="Code"
-                name="code"
-                value={handlingElement.code || ""}
-                onChange={handleChange}
-                fullWidth
-                multiline
-                rows={4}
-                sx={{ mt: 2 }}
-              />
               <TextField
                 label="Font Size (em)"
                 name="fontSize"
@@ -861,20 +835,14 @@ const EditPresentation = () => {
                 sx={{ mt: 2 }}
               />
               <TextField
-                label="Width (%)"
-                name="width"
-                value={handlingElement.width || ""}
+                label="Code"
+                name="code"
+                value={handlingElement.code || ""}
                 onChange={handleChange}
                 fullWidth
-                sx={{ mt: 2 }}
-              />
-              <TextField
-                label="Height (%)"
-                name="height"
-                value={handlingElement.height || ""}
-                onChange={handleChange}
-                fullWidth
-                sx={{ mt: 2 }}
+                multiline
+                rows={5}
+                sx={{ mt: 2, gridColumn: "span 2" }}
               />
             </Box>
           )}
@@ -906,8 +874,15 @@ const EditPresentation = () => {
             fullWidth
           />
           <TextField
+            id="presentation-description-input"
+            label="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            fullWidth
+          />
+          <TextField
             id="thumbnail-url-input"
-            label="Custom Thumbnail URL"
+            label="Thumbnail URL"
             value={customThumbnailURL || thumbnail}
             onChange={(e) => setCustomThumbnailURL(e.target.value)}
             fullWidth
@@ -923,6 +898,7 @@ const EditPresentation = () => {
     </Box>
   );
 };
+
 const slideBox = {
   position: "relative",
   maxWidth: "100%",
